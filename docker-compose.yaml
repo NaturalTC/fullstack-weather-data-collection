@@ -1,15 +1,14 @@
 services:
-  postgres:
-    image: postgres:latest
-    container_name: weather-data-postgres-container
+  mysql:
+    image: mysql:latest
+    container_name: weather-data-mysql-container
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: weather_db
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: weather_db
     ports:
-      - '5432:5432'
+      - '3306:3306'
     volumes:
-      - weather-data:/var/lib/postgresql/data
+      - weather-data:/var/lib/mysql
 
 volumes:
   weather-data:
