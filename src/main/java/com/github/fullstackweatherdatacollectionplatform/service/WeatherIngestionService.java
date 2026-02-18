@@ -1,7 +1,10 @@
 package com.github.fullstackweatherdatacollectionplatform.service;
 
 import com.github.fullstackweatherdatacollectionplatform.client.WeatherApiClient;
+import com.github.fullstackweatherdatacollectionplatform.client.WeatherApiResponse;
+import com.github.fullstackweatherdatacollectionplatform.model.City;
 import com.github.fullstackweatherdatacollectionplatform.model.WeatherData;
+import com.github.fullstackweatherdatacollectionplatform.repository.CityRepository;
 import com.github.fullstackweatherdatacollectionplatform.repository.WeatherDataRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -10,33 +13,45 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor // LOMBOK
+@RequiredArgsConstructor
 public class WeatherIngestionService {
 
-    // both fields are final because springboot will handle the constructors automatically
-    // LOMBOK (RequiredArgsConstructor) only works with final attributes
     private final WeatherApiClient weatherApiClient;
     private final WeatherDataRepository weatherDataRepository;
+    private final CityRepository cityRepository;
+
+    private static final List<String> CITY_NAMES = List.of("Boston", "Worcester", "Bangor", "Hartford");
 
     @Scheduled(fixedRate = 60000) // runs every 60 seconds — increase to 3600000 (1 hour) for production
     public void ingestWeatherData() {
-        // TODO: Define a list of cities to collect weather data for
-        //   - e.g., List<String> cities = List.of("London", "New York", "Tokyo")
+        for (String cityName : CITY_NAMES) {
+            try {
+                WeatherApiResponse response = weatherApiClient.fetchWeather(cityName);
 
-        List<String> cities = List.of("Boston", "Worcester", "Bangor", "Hartford");
-        // TODO: Loop through each city:
-        //   1. Call weatherApiClient.fetchWeather(city) to get a WeatherData object
-        //   2. Save it to the database using weatherDataRepository.save(data)
-        //   3. Log a message so you can see it working (use slf4j logger or System.out for now)
+                // Find existing city or create a new one from the API response
+                City city = cityRepository.findByName(response.cityName())
+                        .orElseGet(() -> cityRepository.save(new City(
+                                response.cityName(),
+                                response.country(),
+                                response.latitude(),
+                                response.longitude()
+                        )));
 
-        for(String city: cities)
-        {
-            try{
-                WeatherData currentWeather = weatherApiClient.fetchWeather(city);
-                weatherDataRepository.save(currentWeather);
-                System.out.println("Saved weather data for " + city);
+                WeatherData data = new WeatherData();
+                data.setCity(city);
+                data.setTemperature(response.temperature());
+                data.setFeelsLike(response.feelsLike());
+                data.setHumidity(response.humidity());
+                data.setPressure(response.pressure());
+                data.setWindSpeed(response.windSpeed());
+                data.setDescription(response.description());
+                data.setTimestamp(response.timestamp());
+                data.setFetchedAt(response.fetchedAt());
+
+                weatherDataRepository.save(data);
+                System.out.println("Saved weather data for " + cityName);
             } catch (Exception e) {
-                System.out.println("Failed to fetch weather for " + city + ": " + e.getMessage());
+                System.out.println("Failed to fetch weather for " + cityName + ": " + e.getMessage());
             }
         }
     }
