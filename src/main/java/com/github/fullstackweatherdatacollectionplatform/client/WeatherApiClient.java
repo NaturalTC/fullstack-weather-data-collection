@@ -28,7 +28,7 @@ public class WeatherApiClient {
     // Calls the OpenWeatherMap API and maps the JSON response to a WeatherData entity
     public WeatherData fetchWeather(String city) {
         // Build the full URL with query parameters: city, API key, and metric units
-        String url = String.format("%s?q=%s&appid=%s&units=metric", apiUrl, city, apiKey);
+        String url = String.format("%s?q=%s&appid=%s&units=imperial", apiUrl, city, apiKey);
 
         // Make the GET request and parse the response as a JSON tree
         JsonNode response = restClient.get()
