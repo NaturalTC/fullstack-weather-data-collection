@@ -11,9 +11,9 @@ public class WeatherData {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // City name returned by the API (e.g., "Province of Turin")
-    @Column(nullable = false)
-    private String cityName;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "city_id", nullable = false)
+    private City city;
 
     // Temperature in the units specified by the API call (metric = Celsius)
     @Column(nullable = false)
@@ -54,9 +54,9 @@ public class WeatherData {
 
     public void setId(Long id) { this.id = id; }
 
-    public String getCityName() { return cityName; }
+    public City getCity() { return city; }
 
-    public void setCityName(String cityName) { this.cityName = cityName; }
+    public void setCity(City city) { this.city = city; }
 
     public double getTemperature() { return temperature; }
 
