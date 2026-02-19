@@ -35,9 +35,10 @@ public class WeatherData {
     @Column(nullable = false)
     private double windSpeed;
 
-    // Short text description of conditions (e.g., "moderate rain", "clear sky")
-    @Column(nullable = false)
-    private String description;
+    // Normalized condition description (e.g., "moderate rain", "clear sky")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "condition_id", nullable = false)
+    private WeatherCondition condition;
 
     // Timestamp from the weather station — when the data was actually recorded
     @Column(nullable = false)
@@ -78,9 +79,9 @@ public class WeatherData {
 
     public void setWindSpeed(double windSpeed) { this.windSpeed = windSpeed; }
 
-    public String getDescription() { return description; }
+    public WeatherCondition getCondition() { return condition; }
 
-    public void setDescription(String description) { this.description = description; }
+    public void setCondition(WeatherCondition condition) { this.condition = condition; }
 
     public LocalDateTime getTimestamp() { return timestamp; }
 

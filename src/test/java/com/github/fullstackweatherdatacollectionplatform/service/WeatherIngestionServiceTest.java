@@ -3,8 +3,10 @@ package com.github.fullstackweatherdatacollectionplatform.service;
 import com.github.fullstackweatherdatacollectionplatform.client.WeatherApiClient;
 import com.github.fullstackweatherdatacollectionplatform.client.WeatherApiResponse;
 import com.github.fullstackweatherdatacollectionplatform.model.City;
+import com.github.fullstackweatherdatacollectionplatform.model.WeatherCondition;
 import com.github.fullstackweatherdatacollectionplatform.model.WeatherData;
 import com.github.fullstackweatherdatacollectionplatform.repository.CityRepository;
+import com.github.fullstackweatherdatacollectionplatform.repository.WeatherConditionRepository;
 import com.github.fullstackweatherdatacollectionplatform.repository.WeatherDataRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +31,9 @@ class WeatherIngestionServiceTest {
     @Mock
     private CityRepository cityRepository;
 
+    @Mock
+    private WeatherConditionRepository weatherConditionRepository;
+
     @InjectMocks
     private WeatherIngestionService weatherIngestionService;
 
@@ -46,13 +51,14 @@ class WeatherIngestionServiceTest {
         // ARRANGE
         when(weatherApiClient.fetchWeather(anyString())).thenReturn(dummyResponse());
         when(cityRepository.findByName(anyString())).thenReturn(Optional.of(new City()));
+        when(weatherConditionRepository.findByDescription(anyString())).thenReturn(Optional.of(new WeatherCondition("clear sky")));
 
         // ACT
         weatherIngestionService.ingestWeatherData();
 
         // ASSERT
-        verify(weatherApiClient, times(4)).fetchWeather(anyString());
-        verify(weatherDataRepository, times(4)).save(any(WeatherData.class));
+        verify(weatherApiClient, times(9)).fetchWeather(anyString());
+        verify(weatherDataRepository, times(9)).save(any(WeatherData.class));
     }
 
     @Test
@@ -62,14 +68,20 @@ class WeatherIngestionServiceTest {
                 .thenReturn(dummyResponse())
                 .thenThrow(new RuntimeException("API error"))
                 .thenReturn(dummyResponse())
+                .thenReturn(dummyResponse())
+                .thenReturn(dummyResponse())
+                .thenReturn(dummyResponse())
+                .thenReturn(dummyResponse())
+                .thenReturn(dummyResponse())
                 .thenReturn(dummyResponse());
         when(cityRepository.findByName(anyString())).thenReturn(Optional.of(new City()));
+        when(weatherConditionRepository.findByDescription(anyString())).thenReturn(Optional.of(new WeatherCondition("clear sky")));
 
         // ACT
         weatherIngestionService.ingestWeatherData();
 
-        // ASSERT — all 4 cities were attempted, but only 3 saved
-        verify(weatherApiClient, times(4)).fetchWeather(anyString());
-        verify(weatherDataRepository, times(3)).save(any(WeatherData.class));
+        // ASSERT — all 9 cities were attempted, but only 8 saved
+        verify(weatherApiClient, times(9)).fetchWeather(anyString());
+        verify(weatherDataRepository, times(8)).save(any(WeatherData.class));
     }
 }
