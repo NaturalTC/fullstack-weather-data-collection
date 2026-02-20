@@ -42,7 +42,7 @@ class WeatherIngestionServiceTest {
                 "TestCity", "US", 42.0, -71.0,
                 72.0, 70.0, 55, 1013, 5.0,
                 "clear sky",
-                LocalDateTime.now(), LocalDateTime.now()
+                LocalDateTime.now()
         );
     }
 

@@ -13,7 +13,6 @@ public record WeatherDataDTO(
         int pressure,
         double windSpeed,
         String description,
-        LocalDateTime timestamp,
         LocalDateTime fetchedAt
 ) {
     public static WeatherDataDTO from(WeatherData entity) {
@@ -26,7 +25,6 @@ public record WeatherDataDTO(
                 entity.getPressure(),
                 entity.getWindSpeed(),
                 entity.getCondition().getDescription(),
-                entity.getTimestamp(),
                 entity.getFetchedAt()
         );
     }

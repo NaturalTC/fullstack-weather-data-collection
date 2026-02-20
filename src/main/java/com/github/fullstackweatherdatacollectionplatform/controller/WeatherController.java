@@ -2,6 +2,7 @@ package com.github.fullstackweatherdatacollectionplatform.controller;
 
 import com.github.fullstackweatherdatacollectionplatform.dto.CityDTO;
 import com.github.fullstackweatherdatacollectionplatform.dto.WeatherDataDTO;
+import com.github.fullstackweatherdatacollectionplatform.dto.WeatherSummaryDTO;
 import com.github.fullstackweatherdatacollectionplatform.service.WeatherQueryService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +31,12 @@ public class WeatherController {
     public List<WeatherDataDTO> getLatestWeather(
             @RequestParam(required = false) String city) {
         return weatherQueryService.getLatestWeather(city);
+    }
+
+    @GetMapping("/weather/summary")
+    public List<WeatherSummaryDTO> getDailySummary(
+            @RequestParam String city) {
+        return weatherQueryService.getDailySummary(city);
     }
 
     @GetMapping("/cities")

@@ -2,6 +2,7 @@ package com.github.fullstackweatherdatacollectionplatform.service;
 
 import com.github.fullstackweatherdatacollectionplatform.dto.CityDTO;
 import com.github.fullstackweatherdatacollectionplatform.dto.WeatherDataDTO;
+import com.github.fullstackweatherdatacollectionplatform.dto.WeatherSummaryDTO;
 import com.github.fullstackweatherdatacollectionplatform.model.City;
 import com.github.fullstackweatherdatacollectionplatform.model.WeatherCondition;
 import com.github.fullstackweatherdatacollectionplatform.model.WeatherData;
@@ -47,8 +48,7 @@ class WeatherQueryServiceTest {
         wd.setPressure(1013);
         wd.setWindSpeed(5.0);
         wd.setCondition(new WeatherCondition("clear sky"));
-        wd.setTimestamp(LocalDateTime.of(2026, 2, 17, 12, 0));
-        wd.setFetchedAt(LocalDateTime.of(2026, 2, 17, 12, 1));
+        wd.setFetchedAt(LocalDateTime.of(2026, 2, 17, 12, 0));
         return wd;
     }
 
@@ -73,7 +73,7 @@ class WeatherQueryServiceTest {
         City city = boston();
         WeatherData wd = weatherFor(city);
         when(cityRepository.findByName("Boston")).thenReturn(Optional.of(city));
-        when(weatherDataRepository.findByCityOrderByTimestampDesc(city)).thenReturn(List.of(wd));
+        when(weatherDataRepository.findByCityOrderByFetchedAtDesc(city)).thenReturn(List.of(wd));
 
         List<WeatherDataDTO> result = weatherQueryService.getAllWeather("Boston");
 
@@ -89,7 +89,7 @@ class WeatherQueryServiceTest {
         List<WeatherDataDTO> result = weatherQueryService.getAllWeather("Nowhere");
 
         assertTrue(result.isEmpty());
-        verify(weatherDataRepository, never()).findByCityOrderByTimestampDesc(any());
+        verify(weatherDataRepository, never()).findByCityOrderByFetchedAtDesc(any());
     }
 
     // --- getLatestWeather ---
@@ -111,7 +111,7 @@ class WeatherQueryServiceTest {
         City city = boston();
         WeatherData wd = weatherFor(city);
         when(cityRepository.findByName("Boston")).thenReturn(Optional.of(city));
-        when(weatherDataRepository.findTopByCityOrderByTimestampDesc(city)).thenReturn(wd);
+        when(weatherDataRepository.findTopByCityOrderByFetchedAtDesc(city)).thenReturn(wd);
 
         List<WeatherDataDTO> result = weatherQueryService.getLatestWeather("Boston");
 
@@ -132,7 +132,7 @@ class WeatherQueryServiceTest {
     void getLatestWeather_cityExistsButNoData_returnsEmpty() {
         City city = boston();
         when(cityRepository.findByName("Boston")).thenReturn(Optional.of(city));
-        when(weatherDataRepository.findTopByCityOrderByTimestampDesc(city)).thenReturn(null);
+        when(weatherDataRepository.findTopByCityOrderByFetchedAtDesc(city)).thenReturn(null);
 
         List<WeatherDataDTO> result = weatherQueryService.getLatestWeather("Boston");
 
@@ -152,6 +152,32 @@ class WeatherQueryServiceTest {
         assertEquals("Boston", result.get(0).name());
         assertEquals("US", result.get(0).country());
         assertEquals(42.36, result.get(0).latitude());
+    }
+
+    // --- getDailySummary ---
+
+    @Test
+    void getDailySummary_knownCity_returnsSummaries() {
+        City city = boston();
+        Object[] row = { java.sql.Date.valueOf(java.time.LocalDate.of(2026, 2, 17)), 65.0, 78.0, 71.5 };
+        when(cityRepository.findByName("Boston")).thenReturn(Optional.of(city));
+        when(weatherDataRepository.findDailySummaryByCityId(city.getId())).thenReturn(List.<Object[]>of(row));
+
+        List<WeatherSummaryDTO> result = weatherQueryService.getDailySummary("Boston");
+
+        assertEquals(1, result.size());
+        assertEquals(65.0, result.get(0).minTemperature());
+        assertEquals(78.0, result.get(0).maxTemperature());
+        assertEquals(71.5, result.get(0).avgTemperature());
+    }
+
+    @Test
+    void getDailySummary_unknownCity_returnsEmpty() {
+        when(cityRepository.findByName("Nowhere")).thenReturn(Optional.empty());
+
+        List<WeatherSummaryDTO> result = weatherQueryService.getDailySummary("Nowhere");
+
+        assertTrue(result.isEmpty());
     }
 
     @Test

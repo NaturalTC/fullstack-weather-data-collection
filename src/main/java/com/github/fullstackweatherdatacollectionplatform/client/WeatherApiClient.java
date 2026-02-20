@@ -4,8 +4,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.JsonNode;
-
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -33,11 +31,9 @@ public class WeatherApiClient {
                 .retrieve()
                 .body(JsonNode.class);
 
-        long dt = response.get("dt").asLong();
-
         return new WeatherApiResponse(
-                response.get("name").asText(),
-                response.get("sys").get("country").asText(),
+                response.get("name").asString(),
+                response.get("sys").get("country").asString(),
                 response.get("coord").get("lat").asDouble(),
                 response.get("coord").get("lon").asDouble(),
                 response.get("main").get("temp").asDouble(),
@@ -45,9 +41,8 @@ public class WeatherApiClient {
                 response.get("main").get("humidity").asInt(),
                 response.get("main").get("pressure").asInt(),
                 response.get("wind").get("speed").asDouble(),
-                response.get("weather").get(0).get("description").asText(),
-                LocalDateTime.ofInstant(Instant.ofEpochSecond(dt), ZoneOffset.UTC),
-                LocalDateTime.now()
+                response.get("weather").get(0).get("description").asString(),
+                LocalDateTime.now(ZoneOffset.UTC)
         );
     }
 }

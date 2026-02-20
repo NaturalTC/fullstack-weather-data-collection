@@ -13,6 +13,5 @@ public record WeatherApiResponse(
         int pressure,
         double windSpeed,
         String description,
-        LocalDateTime timestamp,
         LocalDateTime fetchedAt
 ) {}
