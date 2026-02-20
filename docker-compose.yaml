@@ -2,6 +2,7 @@ services:
   mysql:
     image: mysql:latest
     container_name: weather-data-mysql-container
+    command: --innodb-buffer-pool-size=128M --performance-schema=OFF
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
       MYSQL_DATABASE: weather_db
