@@ -1,25 +1,27 @@
 import type { CityDTO, WeatherDataDTO, WeatherSummaryDTO } from '../types';
 
+const API_BASE = import.meta.env.VITE_API_BASE ?? '';
+
 export async function fetchCities(): Promise<CityDTO[]> {
-  const res = await fetch('/api/cities');
+  const res = await fetch(`${API_BASE}/api/cities`);
   if (!res.ok) throw new Error('Failed to fetch cities');
   return res.json();
 }
 
 export async function fetchLatestWeather(): Promise<WeatherDataDTO[]> {
-  const res = await fetch('/api/weather/latest');
+  const res = await fetch(`${API_BASE}/api/weather/latest`);
   if (!res.ok) throw new Error('Failed to fetch latest weather');
   return res.json();
 }
 
 export async function fetchWeatherHistory(city: string): Promise<WeatherDataDTO[]> {
-  const res = await fetch(`/api/weather?city=${encodeURIComponent(city)}`);
+  const res = await fetch(`${API_BASE}/api/weather?city=${encodeURIComponent(city)}`);
   if (!res.ok) throw new Error('Failed to fetch weather history');
   return res.json();
 }
 
 export async function fetchDailySummary(city: string): Promise<WeatherSummaryDTO[]> {
-  const res = await fetch(`/api/weather/summary?city=${encodeURIComponent(city)}`);
+  const res = await fetch(`${API_BASE}/api/weather/summary?city=${encodeURIComponent(city)}`);
   if (!res.ok) throw new Error('Failed to fetch daily summary');
   return res.json();
 }
