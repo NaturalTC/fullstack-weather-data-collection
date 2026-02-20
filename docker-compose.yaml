@@ -3,12 +3,31 @@ services:
     image: mysql:latest
     container_name: weather-data-mysql-container
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
       MYSQL_DATABASE: weather_db
     ports:
       - '3306:3306'
     volumes:
       - weather-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-root}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    container_name: weather-app-container
+    ports:
+      - '8080:8080'
+    environment:
+      DB_HOST: mysql
+      DB_USERNAME: ${DB_USERNAME:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-root}
+      WEATHER_API_KEY: ${WEATHER_API_KEY}
+    depends_on:
+      mysql:
+        condition: service_healthy
 
 volumes:
   weather-data:
