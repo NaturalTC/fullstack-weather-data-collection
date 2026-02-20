@@ -18,7 +18,7 @@ export default function WeatherChart({ data, city }: Props) {
   const chartData = [...data]
     .reverse()
     .map((d) => ({
-      time: new Date(d.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      time: new Date(d.fetchedAt + 'Z').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       temperature: Math.round(d.temperature),
       feelsLike: Math.round(d.feelsLike),
     }));

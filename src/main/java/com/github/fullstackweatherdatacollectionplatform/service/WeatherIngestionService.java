@@ -29,8 +29,9 @@ public class WeatherIngestionService {
             "Springfield,MA,US"
     );
 
-    @Scheduled(fixedRate = 60000) // runs every 60 seconds — increase to 3600000 (1 hour) for production
-    public void ingestWeatherData() {
+    @Scheduled(fixedRate = 600000) // runs every 60 seconds — increase to 3600000 (1 hour) for production
+    public void ingestWeatherData()
+    {
         for (String cityName : CITY_NAMES) {
             try {
                 WeatherApiResponse response = weatherApiClient.fetchWeather(cityName);
@@ -62,7 +63,8 @@ public class WeatherIngestionService {
         }
     }
 
-    private static WeatherData getWeatherData(City city, WeatherCondition condition, WeatherApiResponse response) {
+    private static WeatherData getWeatherData(City city, WeatherCondition condition, WeatherApiResponse response)
+    {
         WeatherData data = new WeatherData();
         data.setCity(city);
         data.setCondition(condition);
@@ -71,7 +73,6 @@ public class WeatherIngestionService {
         data.setHumidity(response.humidity());
         data.setPressure(response.pressure());
         data.setWindSpeed(response.windSpeed());
-        data.setTimestamp(response.timestamp());
         data.setFetchedAt(response.fetchedAt());
         return data;
     }

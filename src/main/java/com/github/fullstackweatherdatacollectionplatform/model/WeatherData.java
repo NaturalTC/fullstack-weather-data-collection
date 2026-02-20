@@ -40,11 +40,7 @@ public class WeatherData {
     @JoinColumn(name = "condition_id", nullable = false)
     private WeatherCondition condition;
 
-    // Timestamp from the weather station — when the data was actually recorded
-    @Column(nullable = false)
-    private LocalDateTime timestamp;
-
-    // Timestamp from our system — when the scheduler fetched this data
+    // When the scheduler fetched this data (UTC)
     @Column(nullable = false)
     private LocalDateTime fetchedAt;
 
@@ -82,10 +78,6 @@ public class WeatherData {
     public WeatherCondition getCondition() { return condition; }
 
     public void setCondition(WeatherCondition condition) { this.condition = condition; }
-
-    public LocalDateTime getTimestamp() { return timestamp; }
-
-    public void setTimestamp(LocalDateTime timestamp) { this.timestamp = timestamp; }
 
     public LocalDateTime getFetchedAt() { return fetchedAt; }
 

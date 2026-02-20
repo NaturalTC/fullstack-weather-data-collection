@@ -29,8 +29,7 @@ class WeatherControllerTest {
         return new WeatherDataDTO(
                 "Boston", "US", 72.0, 70.0, 55, 1013, 5.0,
                 "clear sky",
-                LocalDateTime.of(2026, 2, 17, 12, 0),
-                LocalDateTime.of(2026, 2, 17, 12, 1)
+                LocalDateTime.of(2026, 2, 17, 12, 0)
         );
     }
 

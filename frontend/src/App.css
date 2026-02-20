@@ -91,12 +91,21 @@ h2 {
   margin-bottom: 1.5rem;
 }
 
+/* Section controls row */
+.section-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
 /* City selector */
 .city-selector {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  margin-bottom: 1rem;
 }
 
 .city-selector label {
@@ -112,6 +121,29 @@ h2 {
   padding: 0.4rem 0.75rem;
   font-size: 0.9rem;
   cursor: pointer;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.tabs button {
+  background: #1e293b;
+  color: #94a3b8;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  padding: 0.4rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tabs button.active {
+  background: #4f9cf9;
+  color: #fff;
+  border-color: #4f9cf9;
 }
 
 .no-data {

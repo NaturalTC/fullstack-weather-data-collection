@@ -7,7 +7,6 @@ export interface WeatherDataDTO {
   pressure: number;
   windSpeed: number;
   description: string;
-  timestamp: string;
   fetchedAt: string;
 }
 
@@ -17,4 +16,11 @@ export interface CityDTO {
   country: string;
   latitude: number;
   longitude: number;
+}
+
+export interface WeatherSummaryDTO {
+  date: string;
+  minTemperature: number;
+  maxTemperature: number;
+  avgTemperature: number;
 }
