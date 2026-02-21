@@ -158,3 +158,35 @@ h2 {
   height: 100vh;
   color: #64748b;
 }
+
+@media (max-width: 600px) {
+  .app {
+    padding: 1rem;
+  }
+
+  header h1 {
+    font-size: 1.3rem;
+  }
+
+  .section-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tabs {
+    width: 100%;
+  }
+
+  .tabs button {
+    flex: 1;
+    text-align: center;
+  }
+
+  .city-selector select {
+    width: 100%;
+  }
+
+  .chart-container {
+    padding: 1rem;
+  }
+}
