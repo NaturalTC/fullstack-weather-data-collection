@@ -5,150 +5,215 @@
 }
 
 body {
-  font-family: system-ui, sans-serif;
-  background: #0f172a;
-  color: #e2e8f0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: linear-gradient(160deg, #1c2b4a 0%, #0f172a 55%, #080f1f 100%);
+  color: #f1f5f9;
   min-height: 100vh;
 }
 
 .app {
-  max-width: 1200px;
+  max-width: 900px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 1.5rem 3rem;
 }
 
+/* Header */
 header {
-  margin-bottom: 2rem;
+  margin-bottom: 1.75rem;
 }
 
-header h1 {
-  font-size: 1.8rem;
-  font-weight: 600;
-}
-
-section {
-  margin-bottom: 2.5rem;
-}
-
-h2 {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #94a3b8;
-  margin-bottom: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Current weather cards */
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
-}
-
-.weather-card {
-  background: #1e293b;
-  border-radius: 10px;
-  padding: 1.2rem;
-}
-
-.weather-card h3 {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: #cbd5e1;
-}
-
-.weather-card .temp {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #4f9cf9;
-}
-
-.weather-card .description {
-  font-size: 0.85rem;
-  color: #94a3b8;
-  margin: 0.3rem 0 0.8rem;
-  text-transform: capitalize;
-}
-
-.weather-card .details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
+.app-title {
   font-size: 0.8rem;
-  color: #64748b;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-/* Chart */
-.chart-container {
-  background: #1e293b;
-  border-radius: 10px;
-  padding: 1.5rem;
+/* Hero card */
+.hero-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
+  padding: 2rem 2.5rem;
+  margin-bottom: 1.25rem;
+  backdrop-filter: blur(20px);
 }
 
-.chart-container h2 {
+.hero-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 1.5rem;
 }
 
-/* Section controls row */
-.section-controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-  gap: 1rem;
-  flex-wrap: wrap;
+.hero-city {
+  font-size: 1.15rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: 0.5rem;
 }
 
-/* City selector */
-.city-selector {
+.hero-temp {
+  font-size: 6rem;
+  font-weight: 200;
+  line-height: 1;
+  color: #fff;
+  letter-spacing: -4px;
+}
+
+.hero-icon {
+  font-size: 5rem;
+  line-height: 1;
+  margin-top: 0.25rem;
+}
+
+.hero-desc {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: capitalize;
+  margin-top: 0.6rem;
+}
+
+.hero-details {
   display: flex;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  padding-top: 1.25rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detail-label {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.detail-value {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* City strip */
+.city-strip {
+  display: flex;
+  gap: 0.65rem;
+  overflow-x: auto;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.5rem;
+  scrollbar-width: none;
+}
+
+.city-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.city-chip {
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 0.85rem 1.1rem;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: left;
+  min-width: 100px;
+  color: inherit;
+}
+
+.city-chip:hover {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.city-chip.active {
+  background: rgba(96, 165, 250, 0.15);
+  border-color: rgba(96, 165, 250, 0.45);
+}
+
+.chip-icon {
+  font-size: 1.2rem;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.chip-name {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 0.3rem;
+  white-space: nowrap;
+}
+
+.chip-temp {
+  font-size: 1.25rem;
+  font-weight: 300;
+  color: #fff;
+}
+
+/* Chart section */
+.chart-section {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 20px;
+  padding: 1.75rem;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
   gap: 0.75rem;
 }
 
-.city-selector label {
-  font-size: 0.9rem;
-  color: #94a3b8;
+.chart-title {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
-.city-selector select {
-  background: #1e293b;
-  color: #e2e8f0;
-  border: 1px solid #334155;
-  border-radius: 6px;
-  padding: 0.4rem 0.75rem;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-/* Tabs */
 .tabs {
   display: flex;
-  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+  padding: 3px;
+  gap: 2px;
 }
 
 .tabs button {
-  background: #1e293b;
-  color: #94a3b8;
-  border: 1px solid #334155;
-  border-radius: 6px;
-  padding: 0.4rem 1rem;
-  font-size: 0.9rem;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  border: none;
+  border-radius: 7px;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.8rem;
+  font-family: inherit;
   cursor: pointer;
   transition: all 0.15s;
 }
 
 .tabs button.active {
-  background: #4f9cf9;
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
-  border-color: #4f9cf9;
 }
 
 .no-data {
-  color: #64748b;
-  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 3rem 0;
 }
 
 .loading {
@@ -156,37 +221,39 @@ h2 {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
 }
 
 @media (max-width: 600px) {
   .app {
-    padding: 1rem;
+    padding: 1.25rem 1rem 2rem;
   }
 
-  header h1 {
-    font-size: 1.3rem;
+  .hero-card {
+    padding: 1.5rem;
+    border-radius: 20px;
   }
 
-  .section-controls {
-    flex-direction: column;
-    align-items: flex-start;
+  .hero-temp {
+    font-size: 4.5rem;
   }
 
-  .tabs {
-    width: 100%;
+  .hero-icon {
+    font-size: 3.5rem;
+  }
+
+  .hero-details {
+    gap: 1.5rem;
+  }
+
+  .chart-section {
+    padding: 1.25rem;
   }
 
   .tabs button {
-    flex: 1;
-    text-align: center;
-  }
-
-  .city-selector select {
-    width: 100%;
-  }
-
-  .chart-container {
-    padding: 1rem;
+    padding: 0.3rem 0.65rem;
   }
 }

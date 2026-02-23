@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { fetchCities, fetchLatestWeather, fetchWeatherHistory, fetchDailySummary } from './api/weatherApi';
 import type { CityDTO, WeatherDataDTO, WeatherSummaryDTO } from './types';
-import CurrentWeatherCard from './components/CurrentWeatherCard';
+import CityChip from './components/CurrentWeatherCard';
 import WeatherChart from './components/WeatherChart';
 import SummaryChart from './components/SummaryChart';
+import { getWeatherIcon } from './utils/weatherIcon';
 import './App.css';
 
 type Tab = 'history' | 'summary';
@@ -19,10 +20,10 @@ export default function App() {
 
   useEffect(() => {
     Promise.all([fetchCities(), fetchLatestWeather()])
-      .then(([cities, latest]) => {
-        setCities(cities);
+      .then(([c, latest]) => {
+        setCities(c);
         setLatestWeather(latest);
-        if (cities.length > 0) setSelectedCity(cities[0].name);
+        if (latest.length > 0) setSelectedCity(latest[0].cityName);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -33,39 +34,62 @@ export default function App() {
     fetchDailySummary(selectedCity).then(setSummary);
   }, [selectedCity]);
 
-  if (loading) return <div className="loading">Loading...</div>;
+  if (loading) return <div className="loading">Loading</div>;
+
+  const hero = latestWeather.find((w) => w.cityName === selectedCity);
+  const heroCity = cities.find((c) => c.name === selectedCity);
 
   return (
     <div className="app">
       <header>
-        <h1>New England Weather</h1>
+        <p className="app-title">New England Weather</p>
       </header>
 
-      <section className="current-weather">
-        <h2>Current Conditions</h2>
-        <div className="card-grid">
-          {latestWeather.map((w) => (
-            <CurrentWeatherCard key={w.cityName} data={w} />
-          ))}
-        </div>
-      </section>
-
-      <section className="history">
-        <div className="section-controls">
-          <div className="city-selector">
-            <label htmlFor="city-select">City</label>
-            <select
-              id="city-select"
-              value={selectedCity}
-              onChange={(e) => setSelectedCity(e.target.value)}
-            >
-              {cities.map((c) => (
-                <option key={c.name} value={c.name}>
-                  {c.name}, {c.state}
-                </option>
-              ))}
-            </select>
+      {hero && (
+        <div className="hero-card">
+          <div className="hero-top">
+            <div>
+              <p className="hero-city">{hero.cityName}{heroCity ? `, ${heroCity.state}` : ''}</p>
+              <p className="hero-temp">{Math.round(hero.temperature)}°</p>
+              <p className="hero-desc">{hero.description}</p>
+            </div>
+            <div className="hero-icon">{getWeatherIcon(hero.description)}</div>
           </div>
+          <div className="hero-details">
+            <div className="detail-item">
+              <span className="detail-label">Feels like</span>
+              <span className="detail-value">{Math.round(hero.feelsLike)}°F</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">Humidity</span>
+              <span className="detail-value">{hero.humidity}%</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">Wind</span>
+              <span className="detail-value">{hero.windSpeed} mph</span>
+            </div>
+            <div className="detail-item">
+              <span className="detail-label">Pressure</span>
+              <span className="detail-value">{hero.pressure} hPa</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="city-strip">
+        {latestWeather.map((w) => (
+          <CityChip
+            key={w.cityName}
+            data={w}
+            selected={w.cityName === selectedCity}
+            onClick={() => setSelectedCity(w.cityName)}
+          />
+        ))}
+      </div>
+
+      <div className="chart-section">
+        <div className="chart-header">
+          <span className="chart-title">{selectedCity}</span>
           <div className="tabs">
             <button
               className={activeTab === 'history' ? 'active' : ''}
@@ -84,15 +108,15 @@ export default function App() {
 
         {activeTab === 'history' && (
           history.length > 0
-            ? <WeatherChart data={history} city={selectedCity} />
+            ? <WeatherChart data={history} />
             : <p className="no-data">No history yet for {selectedCity}</p>
         )}
         {activeTab === 'summary' && (
           summary.length > 0
-            ? <SummaryChart data={summary} city={selectedCity} />
+            ? <SummaryChart data={summary} />
             : <p className="no-data">No summary yet for {selectedCity}</p>
         )}
-      </section>
+      </div>
     </div>
   );
 }
