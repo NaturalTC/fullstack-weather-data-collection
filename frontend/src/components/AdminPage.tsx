@@ -127,7 +127,17 @@ export default function AdminPage() {
   return (
     <div style={styles.page}>
       <div style={{ ...styles.card, maxWidth: 720 }}>
-        <h2 style={styles.title}>Admin Panel</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+          <h2 style={{ ...styles.title, margin: 0 }}>Admin Panel</h2>
+          <a
+            href={`${API_BASE}/swagger-ui/index.html`}
+            target="_blank"
+            rel="noreferrer"
+            style={{ fontSize: '0.8rem', color: '#60a5fa', textDecoration: 'none' }}
+          >
+            API Docs ↗
+          </a>
+        </div>
 
         {/* Stats */}
         <section style={styles.section}>
