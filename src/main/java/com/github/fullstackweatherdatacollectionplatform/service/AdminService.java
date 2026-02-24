@@ -8,8 +8,10 @@ import com.github.fullstackweatherdatacollectionplatform.model.WeatherData;
 import com.github.fullstackweatherdatacollectionplatform.repository.CityRepository;
 import com.github.fullstackweatherdatacollectionplatform.repository.WeatherDataRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -41,7 +43,13 @@ public class AdminService {
     }
 
     public City addCity(String name, String state, String country) {
-        WeatherApiResponse response = weatherApiClient.fetchWeather(name + "," + state + "," + country);
+        WeatherApiResponse response;
+        try {
+            response = weatherApiClient.fetchWeather(name + "," + state + "," + country);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "City not found: " + name + ", " + state + ". Check the name and state code.");
+        }
         City city = new City(response.cityName(), state, country, response.latitude(), response.longitude());
         return cityRepository.save(city);
     }

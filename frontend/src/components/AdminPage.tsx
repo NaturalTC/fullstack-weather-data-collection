@@ -83,7 +83,8 @@ export default function AdminPage() {
       setCityForm({ name: '', state: '', country: 'US' });
       refreshStats();
     } else {
-      setCityMsg('Failed to add city.');
+      const body = await res.json().catch(() => null);
+      setCityMsg(body?.detail ?? body?.message ?? `Failed to add city (${res.status}).`);
     }
   }
 
