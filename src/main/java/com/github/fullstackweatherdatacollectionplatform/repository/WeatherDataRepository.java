@@ -3,9 +3,11 @@ package com.github.fullstackweatherdatacollectionplatform.repository;
 import com.github.fullstackweatherdatacollectionplatform.model.City;
 import com.github.fullstackweatherdatacollectionplatform.model.WeatherData;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,6 +36,18 @@ public interface WeatherDataRepository extends JpaRepository<WeatherData, Long> 
                    "GROUP BY DATE(fetched_at) ORDER BY DATE(fetched_at) DESC",
            nativeQuery = true)
     List<Object[]> findDailySummaryByCityId(@Param("cityId") Long cityId);
+
+    // Most recent record across all cities — used for last-fetch timestamp
+    WeatherData findTopByOrderByFetchedAtDesc();
+
+    // Record count grouped by city name — used for admin stats
+    @Query("SELECT w.city.name, COUNT(w) FROM WeatherData w GROUP BY w.city.name")
+    List<Object[]> countPerCity();
+
+    // Delete all weather records for a given city
+    @Modifying
+    @Transactional
+    void deleteByCityId(Long cityId);
 
     // Daily avg temperature per city for heatmap — last N days
     @Query(value = "SELECT c.name, DATE(w.fetched_at), AVG(w.temperature) " +

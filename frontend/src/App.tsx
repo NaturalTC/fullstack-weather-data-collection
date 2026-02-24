@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   fetchCities, fetchLatestWeather, fetchWeatherHistory,
   fetchDailySummary, fetchForecast, fetchAqi,
@@ -147,6 +148,10 @@ export default function App() {
         <p className="chart-title" style={{ marginBottom: '1.25rem' }}>New England — Current Temperatures</p>
         <WeatherMap />
       </div>
+
+      <footer style={{ textAlign: 'center', padding: '1.5rem 0 2rem', opacity: 0.3, fontSize: '0.75rem' }}>
+        <Link to="/admin" style={{ color: 'inherit', textDecoration: 'none' }}>admin</Link>
+      </footer>
     </div>
   );
 }

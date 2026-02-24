@@ -8,6 +8,7 @@ import com.github.fullstackweatherdatacollectionplatform.model.WeatherData;
 import com.github.fullstackweatherdatacollectionplatform.repository.CityRepository;
 import com.github.fullstackweatherdatacollectionplatform.repository.WeatherConditionRepository;
 import com.github.fullstackweatherdatacollectionplatform.repository.WeatherDataRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -23,48 +24,46 @@ public class WeatherIngestionService {
     private final CityRepository cityRepository;
     private final WeatherConditionRepository weatherConditionRepository;
 
-    private static final List<String> CITY_NAMES = List.of(
-            "Boston,MA,US", "Worcester,MA,US", "Bangor,ME,US", "Hartford,CT,US",
-            "Burlington,VT,US", "Concord,NH,US", "Providence,RI,US", "Portland,ME,US",
-            "Springfield,MA,US"
-    );
+    // Seed the 9 original New England cities if the table is empty on first run
+    @PostConstruct
+    public void seedCities() {
+        if (cityRepository.count() > 0) return;
+
+        List<City> defaults = List.of(
+            new City("Boston",      "MA", "US",  42.3601, -71.0589),
+            new City("Worcester",   "MA", "US",  42.2626, -71.8023),
+            new City("Bangor",      "ME", "US",  44.8016, -68.7712),
+            new City("Hartford",    "CT", "US",  41.7658, -72.6851),
+            new City("Burlington",  "VT", "US",  44.4759, -73.2121),
+            new City("Concord",     "NH", "US",  43.2081, -71.5376),
+            new City("Providence",  "RI", "US",  41.8240, -71.4128),
+            new City("Portland",    "ME", "US",  43.6615, -70.2553),
+            new City("Springfield", "MA", "US",  42.1015, -72.5898)
+        );
+        cityRepository.saveAll(defaults);
+        System.out.println("Seeded " + defaults.size() + " default cities.");
+    }
 
     @Scheduled(fixedRate = 600000) // runs every 10 mins
-    public void ingestWeatherData()
-    {
-        for (String cityName : CITY_NAMES) {
+    public void ingestWeatherData() {
+        for (City city : cityRepository.findAll()) {
             try {
-                WeatherApiResponse response = weatherApiClient.fetchWeather(cityName);
+                WeatherApiResponse response = weatherApiClient.fetchWeatherByCoords(
+                        city.getLatitude(), city.getLongitude());
 
-                // Parse state code from query string e.g. "Boston,MA,US" → "MA"
-                String[] parts = cityName.split(",");
-                String state = parts.length > 1 ? parts[1] : "";
-
-                // Find existing city or create a new one from the API response
-                City city = cityRepository.findByName(response.cityName())
-                        .orElseGet(() -> cityRepository.save(new City(
-                                response.cityName(),
-                                state,
-                                response.country(),
-                                response.latitude(),
-                                response.longitude()
-                        )));
-
-                // Find existing condition or create a new one
                 WeatherCondition condition = weatherConditionRepository.findByDescription(response.description())
                         .orElseGet(() -> weatherConditionRepository.save(new WeatherCondition(response.description())));
 
-                WeatherData data = getWeatherData(city, condition, response);
+                WeatherData data = buildWeatherData(city, condition, response);
                 weatherDataRepository.save(data);
-                System.out.println("Saved weather data for " + cityName);
+                System.out.println("Saved weather data for " + city.getName());
             } catch (Exception e) {
-                System.out.println("Failed to fetch weather for " + cityName + ": " + e.getMessage());
+                System.out.println("Failed to fetch weather for " + city.getName() + ": " + e.getMessage());
             }
         }
     }
 
-    private static WeatherData getWeatherData(City city, WeatherCondition condition, WeatherApiResponse response)
-    {
+    private static WeatherData buildWeatherData(City city, WeatherCondition condition, WeatherApiResponse response) {
         WeatherData data = new WeatherData();
         data.setCity(city);
         data.setCondition(condition);

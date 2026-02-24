@@ -26,6 +26,8 @@ services:
       DB_USERNAME: ${DB_USERNAME:-root}
       DB_PASSWORD: ${DB_PASSWORD:-root}
       WEATHER_API_KEY: ${WEATHER_API_KEY}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-rootadminlogin}
     depends_on:
       mysql:
         condition: service_healthy
