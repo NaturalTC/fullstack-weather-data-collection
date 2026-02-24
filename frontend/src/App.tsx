@@ -1,13 +1,26 @@
 import { useEffect, useState } from 'react';
-import { fetchCities, fetchLatestWeather, fetchWeatherHistory, fetchDailySummary } from './api/weatherApi';
-import type { CityDTO, WeatherDataDTO, WeatherSummaryDTO } from './types';
+import {
+  fetchCities, fetchLatestWeather, fetchWeatherHistory,
+  fetchDailySummary, fetchForecast, fetchAqi, fetchHeatmap,
+} from './api/weatherApi';
+import type { CityDTO, WeatherDataDTO, WeatherSummaryDTO, ForecastDayDTO, AqiDTO, HeatmapEntryDTO } from './types';
 import CityChip from './components/CurrentWeatherCard';
 import WeatherChart from './components/WeatherChart';
 import SummaryChart from './components/SummaryChart';
+import ForecastSection from './components/ForecastSection';
+import HeatmapSection from './components/HeatmapSection';
 import { getWeatherIcon } from './utils/weatherIcon';
 import './App.css';
 
-type Tab = 'history' | 'summary';
+type Tab = 'history' | 'forecast' | 'summary';
+
+const AQI_COLORS: Record<number, string> = {
+  1: '#22c55e',
+  2: '#84cc16',
+  3: '#eab308',
+  4: '#f97316',
+  5: '#ef4444',
+};
 
 export default function App() {
   const [cities, setCities] = useState<CityDTO[]>([]);
@@ -15,14 +28,18 @@ export default function App() {
   const [selectedCity, setSelectedCity] = useState<string>('');
   const [history, setHistory] = useState<WeatherDataDTO[]>([]);
   const [summary, setSummary] = useState<WeatherSummaryDTO[]>([]);
+  const [forecast, setForecast] = useState<ForecastDayDTO[]>([]);
+  const [aqi, setAqi] = useState<AqiDTO | null>(null);
+  const [heatmap, setHeatmap] = useState<HeatmapEntryDTO[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>('history');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([fetchCities(), fetchLatestWeather()])
-      .then(([c, latest]) => {
+    Promise.all([fetchCities(), fetchLatestWeather(), fetchHeatmap()])
+      .then(([c, latest, hm]) => {
         setCities(c);
         setLatestWeather(latest);
+        setHeatmap(hm);
         if (latest.length > 0) setSelectedCity(latest[0].cityName);
       })
       .finally(() => setLoading(false));
@@ -32,6 +49,8 @@ export default function App() {
     if (!selectedCity) return;
     fetchWeatherHistory(selectedCity).then(setHistory);
     fetchDailySummary(selectedCity).then(setSummary);
+    fetchForecast(selectedCity).then(setForecast);
+    fetchAqi(selectedCity).then(setAqi).catch(() => setAqi(null));
   }, [selectedCity]);
 
   if (loading) return <div className="loading">Loading</div>;
@@ -52,6 +71,12 @@ export default function App() {
               <p className="hero-city">{hero.cityName}{heroCity ? `, ${heroCity.state}` : ''}</p>
               <p className="hero-temp">{Math.round(hero.temperature)}°</p>
               <p className="hero-desc">{hero.description}</p>
+              {aqi && (
+                <div className="aqi-badge" style={{ borderColor: AQI_COLORS[aqi.index] }}>
+                  <span className="aqi-dot" style={{ background: AQI_COLORS[aqi.index] }} />
+                  <span>AQI · {aqi.label}</span>
+                </div>
+              )}
             </div>
             <div className="hero-icon">{getWeatherIcon(hero.description)}</div>
           </div>
@@ -91,16 +116,13 @@ export default function App() {
         <div className="chart-header">
           <span className="chart-title">{selectedCity}</span>
           <div className="tabs">
-            <button
-              className={activeTab === 'history' ? 'active' : ''}
-              onClick={() => setActiveTab('history')}
-            >
+            <button className={activeTab === 'history' ? 'active' : ''} onClick={() => setActiveTab('history')}>
               History
             </button>
-            <button
-              className={activeTab === 'summary' ? 'active' : ''}
-              onClick={() => setActiveTab('summary')}
-            >
+            <button className={activeTab === 'forecast' ? 'active' : ''} onClick={() => setActiveTab('forecast')}>
+              Forecast
+            </button>
+            <button className={activeTab === 'summary' ? 'active' : ''} onClick={() => setActiveTab('summary')}>
               Daily Summary
             </button>
           </div>
@@ -111,11 +133,21 @@ export default function App() {
             ? <WeatherChart data={history} />
             : <p className="no-data">No history yet for {selectedCity}</p>
         )}
+        {activeTab === 'forecast' && (
+          forecast.length > 0
+            ? <ForecastSection data={forecast} />
+            : <p className="no-data">Loading forecast…</p>
+        )}
         {activeTab === 'summary' && (
           summary.length > 0
             ? <SummaryChart data={summary} />
             : <p className="no-data">No summary yet for {selectedCity}</p>
         )}
+      </div>
+
+      <div className="heatmap-section">
+        <p className="chart-title" style={{ marginBottom: '1.25rem' }}>7-Day Temperature Heatmap — All Cities</p>
+        <HeatmapSection data={heatmap} />
       </div>
     </div>
   );

@@ -268,6 +268,176 @@ header {
   text-transform: uppercase;
 }
 
+/* AQI badge */
+.aqi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid;
+  border-radius: 20px;
+  padding: 0.28rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: white;
+}
+
+.aqi-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+/* Forecast strip */
+.forecast-strip {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 0.25rem;
+}
+
+.forecast-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.forecast-card {
+  flex: 1;
+  min-width: 120px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1rem 0.75rem;
+  text-align: center;
+}
+
+.forecast-date {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.5rem;
+}
+
+.forecast-icon {
+  font-size: 1.8rem;
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.forecast-desc {
+  font-size: 0.68rem;
+  color: #94a3b8;
+  text-transform: capitalize;
+  margin-bottom: 0.6rem;
+  min-height: 2.2em;
+  line-height: 1.3;
+}
+
+.forecast-temps {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.forecast-high {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.forecast-low {
+  font-size: 1rem;
+  font-weight: 400;
+  color: #94a3b8;
+}
+
+.forecast-pop {
+  font-size: 0.72rem;
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+/* Heatmap */
+.heatmap-section {
+  background: white;
+  border-radius: 22px;
+  padding: 1.75rem;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.08);
+  margin-top: 1.25rem;
+  overflow-x: auto;
+}
+
+.heatmap-wrapper {
+  min-width: 0;
+}
+
+.heatmap-grid {
+  display: grid;
+  gap: 5px;
+  min-width: max-content;
+}
+
+.heatmap-cell {
+  border-radius: 7px;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.45rem 0.3rem;
+  min-width: 52px;
+}
+
+.heatmap-corner {
+  background: transparent;
+}
+
+.heatmap-date-label {
+  color: #94a3b8;
+  background: transparent;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.heatmap-city-label {
+  text-align: left;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #334155;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  min-width: 110px;
+  padding-left: 0;
+}
+
+.heatmap-data {
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.legend-cold { color: hsl(220, 75%, 52%); }
+.legend-hot  { color: hsl(0,   75%, 52%); }
+
+.heatmap-legend-bar {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(to right, hsl(220, 75%, 52%), hsl(110, 75%, 52%), hsl(0, 75%, 52%));
+}
+
 /* Chart legend */
 .chart-legend {
   display: flex;

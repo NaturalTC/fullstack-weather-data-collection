@@ -18,8 +18,24 @@ public class WeatherApiClient {
     @Value("${weather.api.url}")
     private String apiUrl;
 
+    @Value("${weather.forecast.url}")
+    private String forecastUrl;
+
+    @Value("${weather.aqi.url}")
+    private String aqiUrl;
+
     public WeatherApiClient(RestClient.Builder builder) {
         this.restClient = builder.build();
+    }
+
+    public JsonNode fetchForecast(double lat, double lon) {
+        String url = String.format("%s?lat=%f&lon=%f&appid=%s&units=imperial&cnt=40", forecastUrl, lat, lon, apiKey);
+        return restClient.get().uri(url).retrieve().body(JsonNode.class);
+    }
+
+    public JsonNode fetchAqi(double lat, double lon) {
+        String url = String.format("%s?lat=%f&lon=%f&appid=%s", aqiUrl, lat, lon, apiKey);
+        return restClient.get().uri(url).retrieve().body(JsonNode.class);
     }
 
     // Calls the OpenWeatherMap API and returns parsed response data

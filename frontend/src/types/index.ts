@@ -24,3 +24,22 @@ export interface WeatherSummaryDTO {
   maxTemperature: number;
   avgTemperature: number;
 }
+
+export interface ForecastDayDTO {
+  date: string;
+  high: number;
+  low: number;
+  precipChance: number;
+  description: string;
+}
+
+export interface AqiDTO {
+  index: number;
+  label: string;
+}
+
+export interface HeatmapEntryDTO {
+  city: string;
+  date: string;
+  avgTemp: number;
+}

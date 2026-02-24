@@ -34,4 +34,13 @@ public interface WeatherDataRepository extends JpaRepository<WeatherData, Long> 
                    "GROUP BY DATE(fetched_at) ORDER BY DATE(fetched_at) DESC",
            nativeQuery = true)
     List<Object[]> findDailySummaryByCityId(@Param("cityId") Long cityId);
+
+    // Daily avg temperature per city for heatmap — last N days
+    @Query(value = "SELECT c.name, DATE(w.fetched_at), AVG(w.temperature) " +
+                   "FROM weather_data w JOIN city c ON w.city_id = c.id " +
+                   "WHERE w.fetched_at >= DATE_SUB(NOW(), INTERVAL :days DAY) " +
+                   "GROUP BY c.name, DATE(w.fetched_at) " +
+                   "ORDER BY DATE(w.fetched_at), c.name",
+           nativeQuery = true)
+    List<Object[]> findDailyAvgTempPerCity(@Param("days") int days);
 }

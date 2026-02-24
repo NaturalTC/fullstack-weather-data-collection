@@ -1,8 +1,6 @@
 package com.github.fullstackweatherdatacollectionplatform.controller;
 
-import com.github.fullstackweatherdatacollectionplatform.dto.CityDTO;
-import com.github.fullstackweatherdatacollectionplatform.dto.WeatherDataDTO;
-import com.github.fullstackweatherdatacollectionplatform.dto.WeatherSummaryDTO;
+import com.github.fullstackweatherdatacollectionplatform.dto.*;
 import com.github.fullstackweatherdatacollectionplatform.service.WeatherQueryService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,5 +40,20 @@ public class WeatherController {
     @GetMapping("/cities")
     public List<CityDTO> getAllCities() {
         return weatherQueryService.getAllCities();
+    }
+
+    @GetMapping("/forecast")
+    public List<ForecastDayDTO> getForecast(@RequestParam String city) {
+        return weatherQueryService.getForecast(city);
+    }
+
+    @GetMapping("/aqi")
+    public AqiDTO getAqi(@RequestParam String city) {
+        return weatherQueryService.getAqi(city);
+    }
+
+    @GetMapping("/weather/heatmap")
+    public List<HeatmapEntryDTO> getHeatmap() {
+        return weatherQueryService.getHeatmap();
     }
 }
