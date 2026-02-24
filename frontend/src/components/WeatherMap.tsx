@@ -15,26 +15,31 @@ interface Props {
 const RADAR_URL = 'https://mesonet.agron.iastate.edu/cache/tile.py/1.0.0/nexrad-n0q-900913/{z}/{x}/{y}.png';
 
 function createMarker(temp: number, isSelected: boolean) {
-  const ring = isSelected
-    ? 'border: 2.5px solid #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,0.45), 0 3px 14px rgba(0,0,0,0.5);'
-    : 'border: 1.5px solid rgba(255,255,255,0.6); box-shadow: 0 2px 10px rgba(0,0,0,0.4);';
-  const scale = isSelected ? 'scale(1.2)' : 'scale(1)';
+  const bg = isSelected
+    ? 'background: rgba(0,122,255,0.92);'
+    : 'background: rgba(255,255,255,0.88);';
+  const color = isSelected ? 'color: #fff;' : 'color: #1c1c1e;';
+  const shadow = isSelected
+    ? 'box-shadow: 0 2px 12px rgba(0,122,255,0.5);'
+    : 'box-shadow: 0 1px 6px rgba(0,0,0,0.18);';
 
   const html = `
     <div style="
-      transform: translate(-50%,-50%) ${scale};
-      background: rgba(10, 20, 40, 0.82);
-      color: white;
-      padding: 5px 12px;
-      border-radius: 20px;
-      font-size: 14px;
-      font-weight: 700;
-      font-family: system-ui, -apple-system, sans-serif;
-      letter-spacing: -0.2px;
+      transform: translate(-50%,-50%);
+      ${bg}
+      ${color}
+      ${shadow}
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+      letter-spacing: -0.3px;
       white-space: nowrap;
       cursor: pointer;
-      backdrop-filter: blur(6px);
-      ${ring}
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,0.3);
     ">${Math.round(temp)}°</div>
   `;
   return divIcon({ html, className: '', iconSize: [0, 0], iconAnchor: [0, 0] });
