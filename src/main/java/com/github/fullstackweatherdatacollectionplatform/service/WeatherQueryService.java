@@ -68,7 +68,7 @@ public class WeatherQueryService {
         return weatherDataRepository.findDailySummaryByCityId(city.getId())
                 .stream()
                 .map(row -> new WeatherSummaryDTO(
-                        ((java.sql.Date) row[0]).toLocalDate(),
+                        row[0] instanceof java.sql.Date d ? d.toLocalDate() : (java.time.LocalDate) row[0],
                         ((Number) row[1]).doubleValue(),
                         ((Number) row[2]).doubleValue(),
                         ((Number) row[3]).doubleValue()
