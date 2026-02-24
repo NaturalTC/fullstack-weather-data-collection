@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://13.59.3.49:8080';
+const API_BASE = import.meta.env.VITE_API_BASE ?? '';
 
 interface AdminStats {
   totalRecords: number;
