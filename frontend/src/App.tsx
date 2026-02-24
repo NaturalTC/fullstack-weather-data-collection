@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import {
   fetchCities, fetchLatestWeather, fetchWeatherHistory,
-  fetchDailySummary, fetchForecast, fetchAqi, fetchHeatmap,
+  fetchDailySummary, fetchForecast, fetchAqi,
 } from './api/weatherApi';
-import type { CityDTO, WeatherDataDTO, WeatherSummaryDTO, ForecastDayDTO, AqiDTO, HeatmapEntryDTO } from './types';
+import type { CityDTO, WeatherDataDTO, WeatherSummaryDTO, ForecastDayDTO, AqiDTO } from './types';
 import CityChip from './components/CurrentWeatherCard';
 import WeatherChart from './components/WeatherChart';
 import SummaryChart from './components/SummaryChart';
 import ForecastSection from './components/ForecastSection';
-import HeatmapSection from './components/HeatmapSection';
+import WeatherMap from './components/WeatherMap';
 import { getWeatherIcon } from './utils/weatherIcon';
 import './App.css';
 
@@ -30,16 +30,14 @@ export default function App() {
   const [summary, setSummary] = useState<WeatherSummaryDTO[]>([]);
   const [forecast, setForecast] = useState<ForecastDayDTO[]>([]);
   const [aqi, setAqi] = useState<AqiDTO | null>(null);
-  const [heatmap, setHeatmap] = useState<HeatmapEntryDTO[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>('history');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([fetchCities(), fetchLatestWeather(), fetchHeatmap()])
-      .then(([c, latest, hm]) => {
+    Promise.all([fetchCities(), fetchLatestWeather()])
+      .then(([c, latest]) => {
         setCities(c);
         setLatestWeather(latest);
-        setHeatmap(hm);
         if (latest.length > 0) setSelectedCity(latest[0].cityName);
       })
       .finally(() => setLoading(false));
@@ -146,8 +144,13 @@ export default function App() {
       </div>
 
       <div className="heatmap-section">
-        <p className="chart-title" style={{ marginBottom: '1.25rem' }}>7-Day Temperature Heatmap — All Cities</p>
-        <HeatmapSection data={heatmap} />
+        <p className="chart-title" style={{ marginBottom: '1.25rem' }}>New England — Current Temperatures</p>
+        <WeatherMap
+          cities={cities}
+          latestWeather={latestWeather}
+          selectedCity={selectedCity}
+          onCitySelect={setSelectedCity}
+        />
       </div>
     </div>
   );
