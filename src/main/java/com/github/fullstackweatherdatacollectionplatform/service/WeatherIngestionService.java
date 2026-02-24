@@ -10,11 +10,13 @@ import com.github.fullstackweatherdatacollectionplatform.repository.WeatherCondi
 import com.github.fullstackweatherdatacollectionplatform.repository.WeatherDataRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class WeatherIngestionService {
@@ -41,7 +43,7 @@ public class WeatherIngestionService {
             new City("Springfield", "MA", "US",  42.1015, -72.5898)
         );
         cityRepository.saveAll(defaults);
-        System.out.println("Seeded " + defaults.size() + " default cities.");
+        log.info("Seeded {} default cities.", defaults.size());
     }
 
     @Scheduled(fixedRate = 600000) // runs every 10 mins
@@ -56,9 +58,9 @@ public class WeatherIngestionService {
 
                 WeatherData data = buildWeatherData(city, condition, response);
                 weatherDataRepository.save(data);
-                System.out.println("Saved weather data for " + city.getName());
+                log.info("Saved weather data for {}.", city.getName());
             } catch (Exception e) {
-                System.out.println("Failed to fetch weather for " + city.getName() + ": " + e.getMessage());
+                log.error("Failed to fetch weather for {}: {}", city.getName(), e.getMessage());
             }
         }
     }
