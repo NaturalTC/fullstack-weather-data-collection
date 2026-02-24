@@ -12,8 +12,6 @@ interface CityForm {
   name: string;
   state: string;
   country: string;
-  latitude: string;
-  longitude: string;
 }
 
 export default function AdminPage() {
@@ -24,7 +22,7 @@ export default function AdminPage() {
   const [loginError, setLoginError] = useState('');
   const [fetchMsg, setFetchMsg] = useState('');
   const [cityForm, setCityForm] = useState<CityForm>({
-    name: '', state: '', country: 'US', latitude: '', longitude: '',
+    name: '', state: '', country: 'US',
   });
   const [cityMsg, setCityMsg] = useState('');
 
@@ -78,13 +76,11 @@ export default function AdminPage() {
         name: cityForm.name,
         state: cityForm.state,
         country: cityForm.country,
-        latitude: parseFloat(cityForm.latitude),
-        longitude: parseFloat(cityForm.longitude),
       }),
     });
     if (res.ok) {
       setCityMsg(`Added ${cityForm.name}.`);
-      setCityForm({ name: '', state: '', country: 'US', latitude: '', longitude: '' });
+      setCityForm({ name: '', state: '', country: 'US' });
       refreshStats();
     } else {
       setCityMsg('Failed to add city.');
@@ -182,7 +178,7 @@ export default function AdminPage() {
         <section style={styles.section}>
           <h3 style={styles.sectionTitle}>Add City</h3>
           <form onSubmit={handleAddCity} style={{ ...styles.form, flexDirection: 'row', flexWrap: 'wrap', gap: '0.5rem' }}>
-            {(['name', 'state', 'country', 'latitude', 'longitude'] as const).map(field => (
+            {(['name', 'state', 'country'] as const).map(field => (
               <input
                 key={field}
                 style={{ ...styles.input, width: field === 'name' ? '8rem' : '5rem' }}

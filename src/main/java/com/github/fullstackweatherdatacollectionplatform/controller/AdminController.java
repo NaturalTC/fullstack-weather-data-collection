@@ -21,7 +21,7 @@ public class AdminController {
 
     @PostMapping("/cities")
     public ResponseEntity<City> addCity(@RequestBody CityRequest req) {
-        City saved = adminService.addCity(req.name(), req.state(), req.country(), req.latitude(), req.longitude());
+        City saved = adminService.addCity(req.name(), req.state(), req.country());
         return ResponseEntity.ok(saved);
     }
 
@@ -37,5 +37,5 @@ public class AdminController {
         return ResponseEntity.ok("ok");
     }
 
-    record CityRequest(String name, String state, String country, double latitude, double longitude) {}
+    record CityRequest(String name, String state, String country) {}
 }
