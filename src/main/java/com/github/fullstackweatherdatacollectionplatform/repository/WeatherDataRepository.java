@@ -45,8 +45,8 @@ public interface WeatherDataRepository extends JpaRepository<WeatherData, Long> 
     List<Object[]> countPerCity();
 
     // Delete all weather records for a given city
-    @Modifying
-    @Transactional
+    @Modifying // - Anytime you are changing the DB not just querying data
+    @Transactional // - This is error handling for DB modification, either passes or fails and rolls back to prev state
     void deleteByCityId(Long cityId);
 
     // Daily avg temperature per city for heatmap — last N days
