@@ -20,5 +20,8 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins(allowedOrigins.split(","))
                 .allowedMethods("GET", "POST", "DELETE")
                 .allowedHeaders("*");
+        registry.addMapping("/actuator/**")
+                .allowedOrigins(allowedOrigins.split(","))
+                .allowedMethods("GET");
     }
 }
