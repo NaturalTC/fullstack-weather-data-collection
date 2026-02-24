@@ -47,8 +47,8 @@ export default function WeatherMap({ cities, latestWeather }: Props) {
             <CircleMarker
               key={city.name}
               center={[city.latitude, city.longitude]}
-              radius={22}
-              pathOptions={{ color, fillColor: color, fillOpacity: 0.85, weight: 2 }}
+              radius={8}
+              pathOptions={{ color, fillColor: color, fillOpacity: 0.9, weight: 1.5 }}
             >
               <Popup>
                 <strong>{city.name}, {city.state}</strong><br />
