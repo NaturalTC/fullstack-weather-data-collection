@@ -12,6 +12,15 @@ const TEMP_SCALE = [
   { max: Infinity, color: '#f87171', label: '> 75°F' },
 ];
 
+const RADAR_SCALE = [
+  { color: '#04e904', label: 'Light rain' },
+  { color: '#019b01', label: 'Moderate rain' },
+  { color: '#ffff00', label: 'Heavy rain' },
+  { color: '#e79000', label: 'Very heavy rain' },
+  { color: '#ff0000', label: 'Intense / hail risk' },
+  { color: '#ae0092', label: 'Extreme' },
+];
+
 function tempColor(temp: number): string {
   return TEMP_SCALE.find(s => temp < s.max)!.color;
 }
@@ -59,24 +68,48 @@ export default function WeatherMap({ cities, latestWeather }: Props) {
         })}
       </MapContainer>
 
-      {/* Legend */}
+      {/* Legends */}
       <div style={{
         position: 'absolute', bottom: '1.5rem', right: '0.75rem', zIndex: 1000,
-        background: 'rgba(15,17,23,0.82)', backdropFilter: 'blur(6px)',
-        borderRadius: '0.5rem', padding: '0.6rem 0.8rem',
-        display: 'flex', flexDirection: 'column', gap: '0.3rem',
-        fontSize: '0.72rem', color: '#e2e8f0', pointerEvents: 'none',
+        display: 'flex', flexDirection: 'column', gap: '0.5rem', pointerEvents: 'none',
       }}>
-        <span style={{ fontWeight: 600, marginBottom: '0.1rem', color: '#94a3b8' }}>Temperature</span>
-        {TEMP_SCALE.map(s => (
-          <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <span style={{
-              width: 10, height: 10, borderRadius: '50%',
-              background: s.color, display: 'inline-block', flexShrink: 0,
-            }} />
-            {s.label}
-          </div>
-        ))}
+        {/* Temperature legend */}
+        <div style={{
+          background: 'rgba(15,17,23,0.82)', backdropFilter: 'blur(6px)',
+          borderRadius: '0.5rem', padding: '0.6rem 0.8rem',
+          display: 'flex', flexDirection: 'column', gap: '0.3rem',
+          fontSize: '0.72rem', color: '#e2e8f0',
+        }}>
+          <span style={{ fontWeight: 600, marginBottom: '0.1rem', color: '#94a3b8' }}>Temperature</span>
+          {TEMP_SCALE.map(s => (
+            <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span style={{
+                width: 10, height: 10, borderRadius: '50%',
+                background: s.color, display: 'inline-block', flexShrink: 0,
+              }} />
+              {s.label}
+            </div>
+          ))}
+        </div>
+
+        {/* Radar legend */}
+        <div style={{
+          background: 'rgba(15,17,23,0.82)', backdropFilter: 'blur(6px)',
+          borderRadius: '0.5rem', padding: '0.6rem 0.8rem',
+          display: 'flex', flexDirection: 'column', gap: '0.3rem',
+          fontSize: '0.72rem', color: '#e2e8f0',
+        }}>
+          <span style={{ fontWeight: 600, marginBottom: '0.1rem', color: '#94a3b8' }}>Radar</span>
+          {RADAR_SCALE.map(s => (
+            <div key={s.label} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span style={{
+                width: 10, height: 10, borderRadius: '2px',
+                background: s.color, display: 'inline-block', flexShrink: 0,
+              }} />
+              {s.label}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
