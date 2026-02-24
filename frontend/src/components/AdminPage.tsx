@@ -21,6 +21,7 @@ export default function AdminPage() {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loginError, setLoginError] = useState('');
   const [fetchMsg, setFetchMsg] = useState('');
+  const [health, setHealth] = useState<'UP' | 'DOWN' | 'unknown'>('unknown');
   const [cityForm, setCityForm] = useState<CityForm>({
     name: '', state: '', country: 'US',
   });
@@ -41,6 +42,10 @@ export default function AdminPage() {
       if (res.ok) {
         setAuthHeader(header);
         setStats(await res.json());
+        fetch(`${API_BASE}/actuator/health`)
+          .then(r => r.json())
+          .then(d => setHealth(d.status === 'UP' ? 'UP' : 'DOWN'))
+          .catch(() => setHealth('DOWN'));
       } else {
         setLoginError(`Invalid credentials (${res.status})`);
       }
@@ -145,7 +150,13 @@ export default function AdminPage() {
           <h3 style={styles.sectionTitle}>System Stats</h3>
           {stats && (
             <>
-              <p style={styles.stat}>Total records: <strong>{stats.totalRecords.toLocaleString()}</strong></p>
+              <p style={styles.stat}>
+            Server status:{' '}
+            <strong style={{ color: health === 'UP' ? '#4ade80' : health === 'DOWN' ? '#f87171' : '#94a3b8' }}>
+              {health}
+            </strong>
+          </p>
+          <p style={styles.stat}>Total records: <strong>{stats.totalRecords.toLocaleString()}</strong></p>
               <p style={styles.stat}>
                 Last fetch: <strong>{stats.lastFetch ? new Date(stats.lastFetch).toLocaleString() : '—'}</strong>
               </p>
