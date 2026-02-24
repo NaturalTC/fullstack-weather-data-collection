@@ -145,12 +145,7 @@ export default function App() {
 
       <div className="heatmap-section">
         <p className="chart-title" style={{ marginBottom: '1.25rem' }}>New England — Current Temperatures</p>
-        <WeatherMap
-          cities={cities}
-          latestWeather={latestWeather}
-          selectedCity={selectedCity}
-          onCitySelect={setSelectedCity}
-        />
+        <WeatherMap />
       </div>
     </div>
   );
