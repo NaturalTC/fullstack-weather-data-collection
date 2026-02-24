@@ -36,14 +36,18 @@ export default function AdminPage() {
     e.preventDefault();
     setLoginError('');
     const header = makeAuth(username, password);
-    const res = await fetch(`${API_BASE}/admin/stats`, {
-      headers: { Authorization: header },
-    });
-    if (res.ok) {
-      setAuthHeader(header);
-      setStats(await res.json());
-    } else {
-      setLoginError('Invalid credentials');
+    try {
+      const res = await fetch(`${API_BASE}/admin/stats`, {
+        headers: { Authorization: header },
+      });
+      if (res.ok) {
+        setAuthHeader(header);
+        setStats(await res.json());
+      } else {
+        setLoginError(`Invalid credentials (${res.status})`);
+      }
+    } catch (err) {
+      setLoginError(`Network error: ${err}`);
     }
   }
 
