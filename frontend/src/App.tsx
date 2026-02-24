@@ -146,7 +146,7 @@ export default function App() {
 
       <div className="heatmap-section">
         <p className="chart-title" style={{ marginBottom: '1.25rem' }}>New England — Current Temperatures</p>
-        <WeatherMap />
+        <WeatherMap cities={cities} latestWeather={latestWeather} />
       </div>
 
       <footer style={{ textAlign: 'center', padding: '1.5rem 0 2rem', opacity: 0.3, fontSize: '0.75rem' }}>
