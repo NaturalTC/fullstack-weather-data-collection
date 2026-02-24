@@ -29,7 +29,7 @@ public class WeatherIngestionService {
             "Springfield,MA,US"
     );
 
-    @Scheduled(fixedRate = 600000) // runs every 60 seconds — increase to 3600000 (1 hour) for production
+    @Scheduled(fixedRate = 600000) // runs every 10 mins
     public void ingestWeatherData()
     {
         for (String cityName : CITY_NAMES) {
