@@ -27,6 +27,7 @@ public class WeatherIngestionService {
     private final WeatherConditionRepository weatherConditionRepository;
 
     // Seed the 9 original New England cities if the table is empty on first run
+    // PS - I have added more cities in the deployed server that dont show here
     @PostConstruct
     public void seedCities() {
         if (cityRepository.count() > 0) return;
@@ -65,6 +66,7 @@ public class WeatherIngestionService {
         }
     }
 
+    // Building up the WeatherData Object for the weather ingestion
     private static WeatherData buildWeatherData(City city, WeatherCondition condition, WeatherApiResponse response) {
         WeatherData data = new WeatherData();
         data.setCity(city);

@@ -25,6 +25,7 @@ public class SecurityConfig {
     @Value("${admin.password}")
     private String password;
 
+    // Beans are handled by springboot itself, (lifecycle)
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http

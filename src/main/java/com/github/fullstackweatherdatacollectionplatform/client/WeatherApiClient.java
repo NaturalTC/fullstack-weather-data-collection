@@ -7,6 +7,7 @@ import tools.jackson.databind.JsonNode;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
+// Client for my weatherApi so the service layer can use it
 @Component
 public class WeatherApiClient {
 
