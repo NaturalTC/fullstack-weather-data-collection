@@ -28,7 +28,7 @@ public class WeatherIngestionService {
 
     // Seed the 9 original New England cities if the table is empty on first run
     // PS - I have added more cities in the deployed server that dont show here
-    @PostConstruct
+    @PostConstruct // learn more
     public void seedCities() {
         if (cityRepository.count() > 0) return;
 
