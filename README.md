@@ -205,3 +205,5 @@ weather_data (
 ├── docker-compose.yaml
 └── .github/workflows/    # CI/CD pipelines
 ```
+
+Thanks for reading! :)
