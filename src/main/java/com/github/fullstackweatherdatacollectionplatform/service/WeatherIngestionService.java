@@ -32,6 +32,7 @@ public class WeatherIngestionService {
     public void seedCities() {
         if (cityRepository.count() > 0) return;
 
+        // list of all cities
         List<City> defaults = List.of(
             new City("Boston",      "MA", "US",  42.3601, -71.0589),
             new City("Worcester",   "MA", "US",  42.2626, -71.8023),
