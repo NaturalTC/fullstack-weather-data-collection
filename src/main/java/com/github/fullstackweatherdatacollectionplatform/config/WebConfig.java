@@ -5,21 +5,32 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Configuration
-public class WebConfig implements WebMvcConfigurer {
+@Configuration  // tells Spring this class contains setup/config, read it on startup
+public class WebConfig implements WebMvcConfigurer {  // implements WebMvcConfigurer so we can override Spring MVC's default CORS behavior
 
+    // pull allowed origins from properties — the :* means default to wildcard if the property isn't set
+    // in production this is set to the S3 frontend URL so only that domain can call the backend
     @Value("${cors.allowed-origins:*}")
     private String allowedOrigins;
 
+    // Spring calls this method to register CORS rules for each route
     @Override
     public void addCorsMappings(CorsRegistry registry) {
+
+        // allow the frontend to call all public API endpoints
         registry.addMapping("/api/**")
-                .allowedOrigins(allowedOrigins.split(","))
-                .allowedMethods("GET", "POST", "DELETE");
+                .allowedOrigins(allowedOrigins.split(","))  // .split(",") supports multiple origins as a comma-separated list
+                .allowedMethods("GET", "POST", "DELETE");   // only these HTTP methods are allowed cross-origin
+
+        // allow the frontend to call admin endpoints
+        // needs .allowedHeaders("*") because HTTP Basic Auth sends credentials in the Authorization header
+        // which must be explicitly permitted for cross-origin requests
         registry.addMapping("/admin/**")
                 .allowedOrigins(allowedOrigins.split(","))
                 .allowedMethods("GET", "POST", "DELETE")
-                .allowedHeaders("*");
+                .allowedHeaders("*");                       // allow all headers — required for the Authorization header to pass through
+
+        // allow the frontend to call the health check endpoint — read only so only GET is needed
         registry.addMapping("/actuator/**")
                 .allowedOrigins(allowedOrigins.split(","))
                 .allowedMethods("GET");

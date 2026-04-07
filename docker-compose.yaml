@@ -28,6 +28,8 @@ services:
       WEATHER_API_KEY: ${WEATHER_API_KEY}
       ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-rootadminlogin}
+      MAIL_USERNAME: ${MAIL_USERNAME:}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:}
     depends_on:
       mysql:
         condition: service_healthy

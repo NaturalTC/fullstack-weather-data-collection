@@ -14,18 +14,21 @@ interface CityForm {
   country: string;
 }
 
+// The web pages memory, where data is stored during a live session
+// Each line is a piece of memory the page holds. The pattern is always [value, setValue]:
 export default function AdminPage() {
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState(''); // whatevers typed
   const [password, setPassword] = useState('');
   const [authHeader, setAuthHeader] = useState('');
-  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [stats, setStats] = useState<AdminStats | null>(null); // null until log in
   const [loginError, setLoginError] = useState('');
   const [fetchMsg, setFetchMsg] = useState('');
-  const [health, setHealth] = useState<'UP' | 'DOWN' | 'unknown'>('unknown');
+  const [health, setHealth] = useState<'UP' | 'DOWN' | 'unknown'>('unknown'); // 3 states it can be in
   const [cityForm, setCityForm] = useState<CityForm>({
     name: '', state: '', country: 'US',
   });
   const [cityMsg, setCityMsg] = useState('');
+
 
   function makeAuth(u: string, p: string) {
     return 'Basic ' + btoa(`${u}:${p}`);

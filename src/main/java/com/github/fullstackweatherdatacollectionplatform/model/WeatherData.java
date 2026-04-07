@@ -1,51 +1,57 @@
 package com.github.fullstackweatherdatacollectionplatform.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "weather_data")
+@Entity                       // tells JPA/Hibernate this class maps to a database table
+@AllArgsConstructor
+@Table(name = "weather_data") // the main time-series table — grows ~9 rows per 10-minute scheduler cycle
 public class WeatherData {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)  // auto-increment primary key assigned by MySQL
     private Long id;
 
+    // ManyToOne — many weather records can belong to one city
+    // @JoinColumn creates a "city_id" foreign key column in weather_data pointing to the city table
+    // optional = false means every record must have a city — cannot be null
     @ManyToOne(optional = false)
     @JoinColumn(name = "city_id", nullable = false)
     private City city;
 
-    // Temperature in the units specified by the API call (metric = Celsius)
+    // temperature in imperial (°F) — units set by the API call
     @Column(nullable = false)
     private double temperature;
 
-    // "Feels like" temperature accounting for wind chill and humidity
+    // feels-like temperature accounting for wind chill and humidity
     @Column(nullable = false)
     private double feelsLike;
 
-    // Humidity percentage (0-100)
+    // humidity percentage (0-100)
     @Column(nullable = false)
     private int humidity;
 
-    // Atmospheric pressure in hPa
+    // atmospheric pressure in hPa
     @Column(nullable = false)
     private int pressure;
 
-    // Wind speed in meters/sec (metric) or miles/hour (imperial)
+    // wind speed in mph (imperial)
     @Column(nullable = false)
     private double windSpeed;
 
-    // Normalized condition description (e.g., "moderate rain", "clear sky")
+    // ManyToOne — many weather records can share the same condition (e.g. thousands of "clear sky" rows)
+    // normalized into its own table to avoid storing the same string thousands of times
     @ManyToOne(optional = false)
     @JoinColumn(name = "condition_id", nullable = false)
     private WeatherCondition condition;
 
-    // When the scheduler fetched this data (UTC)
+    // UTC timestamp of when the scheduler fetched this record — used for time-series charts and summaries
     @Column(nullable = false)
     private LocalDateTime fetchedAt;
 
-    public WeatherData() {
-    }
+    public WeatherData() {}  // required by JPA — Hibernate needs a no-arg constructor to instantiate entities
 
     public Long getId() { return id; }
 

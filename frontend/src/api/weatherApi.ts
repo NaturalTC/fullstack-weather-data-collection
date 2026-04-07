@@ -1,4 +1,4 @@
-import type { CityDTO, WeatherDataDTO, WeatherSummaryDTO, ForecastDayDTO, AqiDTO, HeatmapEntryDTO } from '../types';
+import type { CityDTO, WeatherDataDTO, WeatherSummaryDTO, ForecastDayDTO, AqiDTO, HeatmapEntryDTO, WeatherAlertDTO } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? '';
 
@@ -41,5 +41,32 @@ export async function fetchAqi(city: string): Promise<AqiDTO> {
 export async function fetchHeatmap(): Promise<HeatmapEntryDTO[]> {
   const res = await fetch(`${API_BASE}/api/weather/heatmap`);
   if (!res.ok) throw new Error('Failed to fetch heatmap');
+  return res.json();
+}
+
+export async function fetchAlerts(): Promise<WeatherAlertDTO[]> {
+  const res = await fetch(`${API_BASE}/api/alerts`);
+  if (!res.ok) throw new Error('Failed to fetch alerts');
+  return res.json();
+}
+
+export async function createAlert(dto: Omit<WeatherAlertDTO, 'id' | 'triggered' | 'triggeredAt'>): Promise<WeatherAlertDTO> {
+  const res = await fetch(`${API_BASE}/api/alerts`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dto),
+  });
+  if (!res.ok) throw new Error('Failed to create alert');
+  return res.json();
+}
+
+export async function deleteAlert(id: number): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/alerts/${id}`, { method: 'DELETE' });
+  if (!res.ok) throw new Error('Failed to delete alert');
+}
+
+export async function dismissAlert(id: number): Promise<WeatherAlertDTO> {
+  const res = await fetch(`${API_BASE}/api/alerts/${id}/dismiss`, { method: 'POST' });
+  if (!res.ok) throw new Error('Failed to dismiss alert');
   return res.json();
 }

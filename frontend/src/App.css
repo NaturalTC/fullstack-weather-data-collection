@@ -461,6 +461,160 @@ header {
   border-radius: 50%;
 }
 
+/* Alerts section wrapper */
+.alerts-section {
+  margin-top: 1.25rem;
+}
+
+.alerts-panel {
+  background: white;
+  border-radius: 22px;
+  padding: 1.75rem;
+  box-shadow: 0 4px 32px rgba(0, 0, 0, 0.08);
+}
+
+/* Alert rule list */
+.alert-rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.alert-rule {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+  gap: 1rem;
+}
+
+
+.alert-rule-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.alert-rule-label {
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.alert-rule-sub {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.alert-delete-btn {
+  background: none;
+  border: none;
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  cursor: pointer;
+  padding: 0.2rem 0.3rem;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+
+.alert-delete-btn:hover {
+  color: #ef4444;
+  background: #fef2f2;
+}
+
+/* New alert form */
+.alert-form {
+  background: #f8fafc;
+  border: 1px dashed #e2e8f0;
+  border-radius: 14px;
+  padding: 1.25rem;
+  margin-top: 0.25rem;
+}
+
+.alert-form-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.85rem;
+}
+
+.alert-form-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.alert-form-row select,
+.alert-form-row input[type="number"] {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.82rem;
+  font-family: inherit;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.alert-form-row select:focus,
+.alert-form-row input:focus {
+  border-color: #93c5fd;
+}
+
+.alert-form-row input[type="number"] {
+  width: 90px;
+}
+
+.alert-label-input {
+  flex: 1;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.82rem;
+  font-family: inherit;
+  color: #0f172a;
+  outline: none;
+  min-width: 180px;
+  transition: border-color 0.15s;
+}
+
+.alert-label-input:focus {
+  border-color: #93c5fd;
+}
+
+.alert-add-btn {
+  background: linear-gradient(135deg, #1d4ed8 0%, #0ea5e9 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.45rem 1.1rem;
+  font-size: 0.82rem;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+
+.alert-add-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.alert-add-btn:not(:disabled):hover {
+  opacity: 0.9;
+}
+
 @media (max-width: 600px) {
   .app {
     padding: 1.25rem 1rem 2.5rem;

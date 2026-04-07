@@ -2,14 +2,15 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   fetchCities, fetchLatestWeather, fetchWeatherHistory,
-  fetchDailySummary, fetchForecast, fetchAqi,
+  fetchDailySummary, fetchForecast, fetchAqi, fetchAlerts,
 } from './api/weatherApi';
-import type { CityDTO, WeatherDataDTO, WeatherSummaryDTO, ForecastDayDTO, AqiDTO } from './types';
+import type { CityDTO, WeatherDataDTO, WeatherSummaryDTO, ForecastDayDTO, AqiDTO, WeatherAlertDTO } from './types';
 import CityChip from './components/CurrentWeatherCard';
 import WeatherChart from './components/WeatherChart';
 import SummaryChart from './components/SummaryChart';
 import ForecastSection from './components/ForecastSection';
 import WeatherMap from './components/WeatherMap';
+import AlertsPanel from './components/AlertsPanel';
 import { getWeatherIcon } from './utils/weatherIcon';
 import './App.css';
 
@@ -33,12 +34,14 @@ export default function App() {
   const [aqi, setAqi] = useState<AqiDTO | null>(null);
   const [activeTab, setActiveTab] = useState<Tab>('history');
   const [loading, setLoading] = useState(true);
+  const [alerts, setAlerts] = useState<WeatherAlertDTO[]>([]);
 
   useEffect(() => {
-    Promise.all([fetchCities(), fetchLatestWeather()])
-      .then(([c, latest]) => {
+    Promise.all([fetchCities(), fetchLatestWeather(), fetchAlerts()])
+      .then(([c, latest, alertList]) => {
         setCities(c);
         setLatestWeather(latest);
+        setAlerts(alertList);
         if (latest.length > 0) setSelectedCity(latest[0].cityName);
       })
       .finally(() => setLoading(false));
@@ -142,6 +145,10 @@ export default function App() {
             ? <SummaryChart data={summary} />
             : <p className="no-data">No summary yet for {selectedCity}</p>
         )}
+      </div>
+
+      <div className="alerts-section">
+        <AlertsPanel alerts={alerts} cities={cities} onAlertsChange={setAlerts} />
       </div>
 
       <div className="heatmap-section">

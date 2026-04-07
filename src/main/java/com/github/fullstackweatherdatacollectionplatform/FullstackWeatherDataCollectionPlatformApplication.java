@@ -3,11 +3,13 @@ package com.github.fullstackweatherdatacollectionplatform;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.client.RestClient;
 
 @SpringBootApplication
 @EnableScheduling
+@EnableCaching
 public class FullstackWeatherDataCollectionPlatformApplication {
 
     public static void main(String[] args) {

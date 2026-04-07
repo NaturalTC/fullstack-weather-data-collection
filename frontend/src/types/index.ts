@@ -43,3 +43,15 @@ export interface HeatmapEntryDTO {
   date: string;
   avgTemp: number;
 }
+
+export interface WeatherAlertDTO {
+  id: number | null;
+  cityName: string;
+  metric: 'TEMPERATURE' | 'FEELS_LIKE' | 'HUMIDITY' | 'WIND_SPEED' | 'PRESSURE';
+  operator: 'ABOVE' | 'BELOW';
+  threshold: number;
+  label: string;
+  recipientEmail: string;
+  triggered: boolean;
+  triggeredAt: string | null;
+}
