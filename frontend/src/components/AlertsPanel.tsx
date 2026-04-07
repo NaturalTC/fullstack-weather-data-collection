@@ -52,7 +52,7 @@ export default function AlertsPanel({ alerts, cities, onAlertsChange }: Props) {
 
   return (
     <div className="alerts-panel">
-      <p className="chart-title" style={{ marginBottom: '1.25rem' }}>Email Alerts</p>
+      <p className="panel-title" style={{ marginBottom: '1.25rem' }}>Email Alerts</p>
 
       {/* existing alert rules */}
       {alerts.length > 0 && (

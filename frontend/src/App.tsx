@@ -17,31 +17,37 @@ import './App.css';
 type Tab = 'history' | 'forecast' | 'summary';
 
 const AQI_COLORS: Record<number, string> = {
-  1: '#22c55e',
-  2: '#84cc16',
-  3: '#eab308',
-  4: '#f97316',
-  5: '#ef4444',
+  1: '#4ade80',
+  2: '#a3e635',
+  3: '#facc15',
+  4: '#fb923c',
+  5: '#f87171',
+};
+
+const AQI_LABELS: Record<number, string> = {
+  1: 'Good', 2: 'Fair', 3: 'Moderate', 4: 'Poor', 5: 'Very Poor',
 };
 
 export default function App() {
-  const [cities, setCities] = useState<CityDTO[]>([]);
+  const [cities, setCities]               = useState<CityDTO[]>([]);
   const [latestWeather, setLatestWeather] = useState<WeatherDataDTO[]>([]);
-  const [selectedCity, setSelectedCity] = useState<string>('');
-  const [history, setHistory] = useState<WeatherDataDTO[]>([]);
-  const [summary, setSummary] = useState<WeatherSummaryDTO[]>([]);
-  const [forecast, setForecast] = useState<ForecastDayDTO[]>([]);
-  const [aqi, setAqi] = useState<AqiDTO | null>(null);
-  const [activeTab, setActiveTab] = useState<Tab>('history');
-  const [loading, setLoading] = useState(true);
-  const [alerts, setAlerts] = useState<WeatherAlertDTO[]>([]);
+  const [selectedCity, setSelectedCity]   = useState<string>('');
+  const [history, setHistory]             = useState<WeatherDataDTO[]>([]);
+  const [summary, setSummary]             = useState<WeatherSummaryDTO[]>([]);
+  const [forecast, setForecast]           = useState<ForecastDayDTO[]>([]);
+  const [aqi, setAqi]                     = useState<AqiDTO | null>(null);
+  const [activeTab, setActiveTab]         = useState<Tab>('history');
+  const [loading, setLoading]             = useState(true);
+  const [alerts, setAlerts]               = useState<WeatherAlertDTO[]>([]);
 
   useEffect(() => {
-    Promise.all([fetchCities(), fetchLatestWeather(), fetchAlerts()])
-      .then(([c, latest, alertList]) => {
+    // alerts are fetched independently so a failure doesn't block the main data from loading
+    fetchAlerts().then(setAlerts).catch(() => setAlerts([]));
+
+    Promise.all([fetchCities(), fetchLatestWeather()])
+      .then(([c, latest]) => {
         setCities(c);
         setLatestWeather(latest);
-        setAlerts(alertList);
         if (latest.length > 0) setSelectedCity(latest[0].cityName);
       })
       .finally(() => setLoading(false));
@@ -55,56 +61,66 @@ export default function App() {
     fetchAqi(selectedCity).then(setAqi).catch(() => setAqi(null));
   }, [selectedCity]);
 
-  if (loading) return <div className="loading">Loading</div>;
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <div className="loading-pulse" />
+        <p className="loading-text">reading the atmosphere</p>
+      </div>
+    );
+  }
 
-  const hero = latestWeather.find((w) => w.cityName === selectedCity);
-  const heroCity = cities.find((c) => c.name === selectedCity);
+  const hero     = latestWeather.find(w => w.cityName === selectedCity);
+  const heroCity = cities.find(c => c.name === selectedCity);
 
   return (
     <div className="app">
-      <header>
-        <p className="app-title">New England Weather</p>
+
+      {/* ── Header ── */}
+      <header className="app-header">
+        <div className="header-eyebrow">NEW ENGLAND</div>
+        <h1 className="header-title">Weather</h1>
       </header>
 
+      {/* ── Hero ── */}
       {hero && (
         <div className="hero-card">
+          <div className="hero-glow" />
           <div className="hero-top">
-            <div>
-              <p className="hero-city">{hero.cityName}{heroCity ? `, ${heroCity.state}` : ''}</p>
+            <div className="hero-left">
+              <p className="hero-city">
+                {hero.cityName}{heroCity ? `, ${heroCity.state}` : ''}
+              </p>
               <p className="hero-temp">{Math.round(hero.temperature)}°</p>
               <p className="hero-desc">{hero.description}</p>
               {aqi && (
-                <div className="aqi-badge" style={{ borderColor: AQI_COLORS[aqi.index] }}>
-                  <span className="aqi-dot" style={{ background: AQI_COLORS[aqi.index] }} />
-                  <span>AQI · {aqi.label}</span>
+                <div className="aqi-badge" style={{ '--aqi-color': AQI_COLORS[aqi.index] } as React.CSSProperties}>
+                  <span className="aqi-dot" />
+                  <span>AQI · {AQI_LABELS[aqi.index]}</span>
                 </div>
               )}
             </div>
             <div className="hero-icon">{getWeatherIcon(hero.description)}</div>
           </div>
           <div className="hero-details">
-            <div className="detail-item">
-              <span className="detail-label">Feels like</span>
-              <span className="detail-value">{Math.round(hero.feelsLike)}°F</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">Humidity</span>
-              <span className="detail-value">{hero.humidity}%</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">Wind</span>
-              <span className="detail-value">{hero.windSpeed} mph</span>
-            </div>
-            <div className="detail-item">
-              <span className="detail-label">Pressure</span>
-              <span className="detail-value">{hero.pressure} hPa</span>
-            </div>
+            {[
+              { label: 'Feels like', value: `${Math.round(hero.feelsLike)}°F` },
+              { label: 'Humidity',   value: `${hero.humidity}%` },
+              { label: 'Wind',       value: `${hero.windSpeed} mph` },
+              { label: 'Pressure',   value: `${hero.pressure} hPa` },
+            ].map(({ label, value }) => (
+              <div className="detail-item" key={label}>
+                <span className="detail-label">{label}</span>
+                <span className="detail-value">{value}</span>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
+      {/* ── City strip ── */}
       <div className="city-strip">
-        {latestWeather.map((w) => (
+        {latestWeather.map(w => (
           <CityChip
             key={w.cityName}
             data={w}
@@ -114,19 +130,20 @@ export default function App() {
         ))}
       </div>
 
-      <div className="chart-section">
-        <div className="chart-header">
-          <span className="chart-title">{selectedCity}</span>
+      {/* ── Chart section ── */}
+      <div className="panel">
+        <div className="panel-header">
+          <span className="panel-title">{selectedCity}</span>
           <div className="tabs">
-            <button className={activeTab === 'history' ? 'active' : ''} onClick={() => setActiveTab('history')}>
-              History
-            </button>
-            <button className={activeTab === 'forecast' ? 'active' : ''} onClick={() => setActiveTab('forecast')}>
-              Forecast
-            </button>
-            <button className={activeTab === 'summary' ? 'active' : ''} onClick={() => setActiveTab('summary')}>
-              Daily Summary
-            </button>
+            {(['history', 'forecast', 'summary'] as Tab[]).map(t => (
+              <button
+                key={t}
+                className={activeTab === t ? 'active' : ''}
+                onClick={() => setActiveTab(t)}
+              >
+                {t === 'history' ? 'History' : t === 'forecast' ? 'Forecast' : 'Summary'}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -147,17 +164,19 @@ export default function App() {
         )}
       </div>
 
-      <div className="alerts-section">
+      {/* ── Alerts ── */}
+      <div className="panel" style={{ marginTop: '1rem' }}>
         <AlertsPanel alerts={alerts} cities={cities} onAlertsChange={setAlerts} />
       </div>
 
-      <div className="heatmap-section">
-        <p className="chart-title" style={{ marginBottom: '1.25rem' }}>Weather Map</p>
+      {/* ── Map ── */}
+      <div className="panel" style={{ marginTop: '1rem' }}>
+        <p className="panel-title" style={{ marginBottom: '1.25rem' }}>Weather Map</p>
         <WeatherMap cities={cities} latestWeather={latestWeather} />
       </div>
 
-      <footer style={{ textAlign: 'center', padding: '1.5rem 0 2rem', opacity: 0.3, fontSize: '0.75rem' }}>
-        <Link to="/admin" style={{ color: 'inherit', textDecoration: 'none' }}>admin</Link>
+      <footer className="app-footer">
+        <Link to="/admin">admin</Link>
       </footer>
     </div>
   );
