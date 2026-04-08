@@ -19,8 +19,9 @@ public class WebConfig implements WebMvcConfigurer {  // implements WebMvcConfig
 
         // allow the frontend to call all public API endpoints
         registry.addMapping("/api/**")
-                .allowedOrigins(allowedOrigins.split(","))  // .split(",") supports multiple origins as a comma-separated list
-                .allowedMethods("GET", "POST", "DELETE");   // only these HTTP methods are allowed cross-origin
+                .allowedOrigins(allowedOrigins.split(","))
+                .allowedMethods("GET", "POST", "DELETE")
+                .allowedHeaders("*");  // required for POST — browser preflight checks Content-Type header
 
         // allow the frontend to call admin endpoints
         // needs .allowedHeaders("*") because HTTP Basic Auth sends credentials in the Authorization header
