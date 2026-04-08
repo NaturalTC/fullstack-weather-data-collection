@@ -14,7 +14,7 @@ public record WeatherAlertDTO(
         double threshold,
         String label,
         String recipientEmail,  // email address to notify when the condition is met
-        boolean triggered,
+        Boolean triggered,      // wrapper type so Jackson can handle null when creating a new alert
         LocalDateTime triggeredAt
 ) {
     public static WeatherAlertDTO from(WeatherAlert alert) {
