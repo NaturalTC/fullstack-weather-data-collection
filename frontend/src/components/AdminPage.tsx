@@ -14,6 +14,12 @@ interface CityForm {
   country: string;
 }
 
+interface CacheStat {
+  name: string;
+  hits: number;
+  misses: number;
+}
+
 // The web pages memory, where data is stored during a live session
 // Each line is a piece of memory the page holds. The pattern is always [value, setValue]:
 export default function AdminPage() {
@@ -28,6 +34,8 @@ export default function AdminPage() {
     name: '', state: '', country: 'US',
   });
   const [cityMsg, setCityMsg] = useState('');
+  const [cacheStats, setCacheStats] = useState<CacheStat[] | null>(null);
+  const [cacheLoading, setCacheLoading] = useState(false);
 
 
   function makeAuth(u: string, p: string) {
@@ -93,6 +101,29 @@ export default function AdminPage() {
     } else {
       const body = await res.json().catch(() => null);
       setCityMsg(body?.detail ?? body?.message ?? `Failed to add city (${res.status}).`);
+    }
+  }
+
+  async function loadCacheStats() {
+    setCacheLoading(true);
+    const cacheNames = ['latestWeather', 'dailySummary', 'forecast', 'aqi', 'heatmap'];
+    try {
+      const stats = await Promise.all(
+        cacheNames.map(async name => {
+          const [hitsRes, missesRes] = await Promise.all([
+            fetch(`${API_BASE}/actuator/metrics/cache.gets?tag=name:${name}&tag=result:hit`),
+            fetch(`${API_BASE}/actuator/metrics/cache.gets?tag=name:${name}&tag=result:miss`),
+          ]);
+          const hits = hitsRes.ok ? (await hitsRes.json()).measurements[0]?.value ?? 0 : 0;
+          const misses = missesRes.ok ? (await missesRes.json()).measurements[0]?.value ?? 0 : 0;
+          return { name, hits, misses };
+        })
+      );
+      setCacheStats(stats);
+    } catch {
+      setCacheStats([]);
+    } finally {
+      setCacheLoading(false);
     }
   }
 
@@ -197,6 +228,42 @@ export default function AdminPage() {
           <h3 style={styles.sectionTitle}>Manual Fetch</h3>
           <button style={styles.btn} onClick={handleTriggerFetch}>Trigger Fetch Now</button>
           {fetchMsg && <p style={styles.msg}>{fetchMsg}</p>}
+        </section>
+
+        {/* Cache Stats */}
+        <section style={styles.section}>
+          <h3 style={styles.sectionTitle}>Cache Stats</h3>
+          <button style={styles.btn} onClick={loadCacheStats} disabled={cacheLoading}>
+            {cacheLoading ? 'Loading…' : 'Refresh Cache Stats'}
+          </button>
+          {cacheStats && (
+            <table style={{ ...styles.table, marginTop: '0.75rem' }}>
+              <thead>
+                <tr>
+                  <th style={styles.th}>Cache</th>
+                  <th style={styles.th}>Hits</th>
+                  <th style={styles.th}>Misses</th>
+                  <th style={styles.th}>Hit Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                {cacheStats.map(c => {
+                  const total = c.hits + c.misses;
+                  const rate = total === 0 ? '—' : `${Math.round((c.hits / total) * 100)}%`;
+                  return (
+                    <tr key={c.name}>
+                      <td style={styles.td}>{c.name}</td>
+                      <td style={styles.td}>{c.hits}</td>
+                      <td style={styles.td}>{c.misses}</td>
+                      <td style={{ ...styles.td, color: total === 0 ? '#94a3b8' : c.hits / total > 0.5 ? '#4ade80' : '#f87171' }}>
+                        {rate}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
         </section>
 
         {/* Add city */}
