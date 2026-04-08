@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -37,11 +38,16 @@ public class SecurityConfig {
             .cors(Customizer.withDefaults())
 
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/**").permitAll()                          // public — anyone can call these
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // public — API docs open to all
-                .requestMatchers("/actuator/health").permitAll()                 // public — health check open to all
-                .requestMatchers("/admin/**").authenticated()                    // protected — must be logged in
-                .anyRequest().authenticated()                                    // anything else also requires login
+                .requestMatchers(HttpMethod.GET,    "/api/**").permitAll()
+                .requestMatchers(HttpMethod.POST,   "/api/**").permitAll()
+                .requestMatchers(HttpMethod.DELETE, "/api/**").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()      // allow CORS preflight requests
+                .requestMatchers("/api/**").permitAll()                          // catch-all for any other methods
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/actuator/health").permitAll()
+                .requestMatchers("/error").permitAll()                           // allow Spring's error dispatcher through
+                .requestMatchers("/admin/**").authenticated()
+                .anyRequest().authenticated()
             )
 
             // use HTTP Basic Auth — frontend sends username/password in the Authorization header
