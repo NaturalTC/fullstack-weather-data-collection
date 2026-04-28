@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import App from './App.tsx'
 import AdminPage from './components/AdminPage.tsx'
+import MetricsDashboard from './components/MetricsDashboard.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -11,6 +12,7 @@ createRoot(document.getElementById('root')!).render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/metrics" element={<MetricsDashboard />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>,

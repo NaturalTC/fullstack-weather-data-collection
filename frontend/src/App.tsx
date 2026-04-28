@@ -176,6 +176,8 @@ export default function App() {
       </div>
 
       <footer className="app-footer">
+        <Link to="/metrics">metrics</Link>
+        <span style={{ color: '#94a3b8', margin: '0 0.5rem' }}>·</span>
         <Link to="/admin">admin</Link>
       </footer>
     </div>
