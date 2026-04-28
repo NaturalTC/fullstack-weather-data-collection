@@ -55,15 +55,21 @@ function fmtUptime(secs: number): string {
   return `${m}m ${Math.floor(secs % 60)}s`;
 }
 
+function toUtc(iso: string): Date {
+  // MySQL datetimes have no timezone indicator — append Z so the browser treats them as UTC
+  return new Date(/[Zz]|[+-]\d{2}:?\d{2}$/.test(iso) ? iso : iso + 'Z');
+}
+
 function timeAgo(iso: string): string {
-  const diff = Math.round((Date.now() - new Date(iso).getTime()) / 1000);
+  const diff = Math.round((Date.now() - toUtc(iso).getTime()) / 1000);
+  if (diff < 0) return 'just now';
   if (diff < 60) return `${diff}s ago`;
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   return `${Math.floor(diff / 3600)}h ago`;
 }
 
 function ingestionColor(iso: string): string {
-  const mins = (Date.now() - new Date(iso).getTime()) / 60000;
+  const mins = (Date.now() - toUtc(iso).getTime()) / 60000;
   if (mins < 15) return '#4ade80';
   if (mins < 30) return '#facc15';
   return '#f87171';
@@ -353,7 +359,7 @@ const s: Record<string, React.CSSProperties> = {
   },
   tileGrid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(138px, 1fr))',
+    gridTemplateColumns: 'repeat(3, 1fr)',
     gap: '0.75rem',
     marginBottom: '0.75rem',
   },
