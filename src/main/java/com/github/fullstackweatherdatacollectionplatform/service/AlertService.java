@@ -18,17 +18,14 @@ import java.util.List;
 public class AlertService {
 
     private final WeatherAlertRepository alertRepository;
-
-    // optional — Spring only injects this if MAIL_USERNAME is configured
-    // if it's null, alerts still work but no email is sent
-    @Autowired(required = false)
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
 
     @Value("${spring.mail.username:}")
     private String mailUsername;
 
-    public AlertService(WeatherAlertRepository alertRepository) {
+    public AlertService(WeatherAlertRepository alertRepository, @Autowired(required = false) JavaMailSender mailSender) {
         this.alertRepository = alertRepository;
+        this.mailSender = mailSender;
     }
 
     // returns every alert rule in the database — the frontend shows all of them

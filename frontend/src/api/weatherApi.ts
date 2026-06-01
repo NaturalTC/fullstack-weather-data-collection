@@ -1,4 +1,4 @@
-import type { CityDTO, WeatherDataDTO, WeatherSummaryDTO, ForecastDayDTO, AqiDTO, HeatmapEntryDTO, WeatherAlertDTO } from '../types';
+import type { CityDTO, WeatherDataDTO, WeatherSummaryDTO, ForecastDayDTO, AqiDTO, HeatmapEntryDTO, WeatherAlertDTO, WeatherInsightDTO } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? '';
 
@@ -8,26 +8,26 @@ export async function fetchCities(): Promise<CityDTO[]> {
   return res.json();
 }
 
-export async function fetchLatestWeather(): Promise<WeatherDataDTO[]> {
-  const res = await fetch(`${API_BASE}/api/weather/latest`);
+export async function fetchLatestWeather(unit: 'imperial' | 'metric' = 'imperial'): Promise<WeatherDataDTO[]> {
+  const res = await fetch(`${API_BASE}/api/weather/latest?unit=${unit}`);
   if (!res.ok) throw new Error('Failed to fetch latest weather');
   return res.json();
 }
 
-export async function fetchWeatherHistory(city: string): Promise<WeatherDataDTO[]> {
-  const res = await fetch(`${API_BASE}/api/weather?city=${encodeURIComponent(city)}`);
+export async function fetchWeatherHistory(city: string, unit: 'imperial' | 'metric' = 'imperial'): Promise<WeatherDataDTO[]> {
+  const res = await fetch(`${API_BASE}/api/weather?city=${encodeURIComponent(city)}&unit=${unit}`);
   if (!res.ok) throw new Error('Failed to fetch weather history');
   return res.json();
 }
 
-export async function fetchDailySummary(city: string): Promise<WeatherSummaryDTO[]> {
-  const res = await fetch(`${API_BASE}/api/weather/summary?city=${encodeURIComponent(city)}`);
+export async function fetchDailySummary(city: string, unit: 'imperial' | 'metric' = 'imperial'): Promise<WeatherSummaryDTO[]> {
+  const res = await fetch(`${API_BASE}/api/weather/summary?city=${encodeURIComponent(city)}&unit=${unit}`);
   if (!res.ok) throw new Error('Failed to fetch daily summary');
   return res.json();
 }
 
-export async function fetchForecast(city: string): Promise<ForecastDayDTO[]> {
-  const res = await fetch(`${API_BASE}/api/forecast?city=${encodeURIComponent(city)}`);
+export async function fetchForecast(city: string, unit: 'imperial' | 'metric' = 'imperial'): Promise<ForecastDayDTO[]> {
+  const res = await fetch(`${API_BASE}/api/forecast?city=${encodeURIComponent(city)}&unit=${unit}`);
   if (!res.ok) throw new Error('Failed to fetch forecast');
   return res.json();
 }
@@ -63,6 +63,12 @@ export async function createAlert(dto: Omit<WeatherAlertDTO, 'id' | 'triggered' 
 export async function deleteAlert(id: number): Promise<void> {
   const res = await fetch(`${API_BASE}/api/alerts/${id}`, { method: 'DELETE' });
   if (!res.ok) throw new Error('Failed to delete alert');
+}
+
+export async function fetchInsight(city: string): Promise<WeatherInsightDTO> {
+  const res = await fetch(`${API_BASE}/api/weather/insights?city=${encodeURIComponent(city)}`);
+  if (!res.ok) throw new Error('Failed to fetch insight');
+  return res.json();
 }
 
 export async function dismissAlert(id: number): Promise<WeatherAlertDTO> {

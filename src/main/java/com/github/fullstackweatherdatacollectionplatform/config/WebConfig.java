@@ -17,7 +17,7 @@ public class WebConfig implements WebMvcConfigurer {  // implements WebMvcConfig
     @Override
     public void addCorsMappings(CorsRegistry registry) {
 
-        // allow the frontend to call all public API endpoints
+        // allow the frontend to call all public API endpoints (weather + auth + keys)
         registry.addMapping("/api/**")
                 .allowedOrigins(allowedOrigins.split(","))
                 .allowedMethods("GET", "POST", "DELETE")

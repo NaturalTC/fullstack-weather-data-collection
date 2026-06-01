@@ -1,105 +1,145 @@
 package com.github.fullstackweatherdatacollectionplatform.client;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.github.fullstackweatherdatacollectionplatform.dto.WeatherApiResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import tools.jackson.databind.JsonNode;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Map;
 
-/*
-    Client for my weatherApi so the service layer can use it
-    tells Spring manage this class for me.
+/**
+ * Weather data client — uses Open-Meteo (free, no API key required).
+ * Replaces OpenWeatherMap to eliminate API costs.
+ *
+ * Endpoints used:
+ *   Current:   https://api.open-meteo.com/v1/forecast  (current= params)
+ *   Forecast:  https://api.open-meteo.com/v1/forecast  (daily= params)
+ *   AQI:       https://air-quality-api.open-meteo.com/v1/air-quality
+ *   Geocoding: https://geocoding-api.open-meteo.com/v1/search
  */
 @Component
 public class WeatherApiClient {
 
-    // Spring's built-in HTTP client. It's what actually makes the GET
-    // request to OpenWeatherMap — like a browser but in code.
+    private static final String FORECAST_URL    = "https://api.open-meteo.com/v1/forecast";
+    private static final String AQI_URL         = "https://air-quality-api.open-meteo.com/v1/air-quality";
+    private static final String GEOCODING_URL   = "https://geocoding-api.open-meteo.com/v1/search";
+
+    // WMO weather interpretation codes → human-readable descriptions
+    private static final Map<Integer, String> WMO = Map.ofEntries(
+        Map.entry(0,  "clear sky"),
+        Map.entry(1,  "mainly clear"),
+        Map.entry(2,  "partly cloudy"),
+        Map.entry(3,  "overcast"),
+        Map.entry(45, "fog"),
+        Map.entry(48, "icy fog"),
+        Map.entry(51, "light drizzle"),
+        Map.entry(53, "drizzle"),
+        Map.entry(55, "heavy drizzle"),
+        Map.entry(61, "light rain"),
+        Map.entry(63, "moderate rain"),
+        Map.entry(65, "heavy rain"),
+        Map.entry(71, "light snow"),
+        Map.entry(73, "snow"),
+        Map.entry(75, "heavy snow"),
+        Map.entry(77, "snow grains"),
+        Map.entry(80, "light showers"),
+        Map.entry(81, "showers"),
+        Map.entry(82, "heavy showers"),
+        Map.entry(85, "snow showers"),
+        Map.entry(86, "heavy snow showers"),
+        Map.entry(95, "thunderstorm"),
+        Map.entry(96, "thunderstorm with hail"),
+        Map.entry(99, "thunderstorm with heavy hail")
+    );
+
     private final RestClient restClient;
 
-    /*
-        @Value just references my resource app-properties
-        each attribute needed for my API call
-     */
-    @Value("${weather.api.key}")
-    private String apiKey;
-
-    @Value("${weather.api.url}")
-    private String apiUrl;
-
-    @Value("${weather.forecast.url}")
-    private String forecastUrl;
-
-    @Value("${weather.aqi.url}")
-    private String aqiUrl;
-
-    /*
-        I use dependency injection here with the restClient that is provided by Springboot
-        to construct my HTTP restClient, so I can make API calls using it in this class.
-        Builder pattern so I have optional configuration when making the call
-     */
     public WeatherApiClient(RestClient.Builder builder) {
         this.restClient = builder.build();
     }
 
-    // fetches a 5-day forecast by coordinates — returns raw JsonNode because the response is complex
-    public JsonNode fetchForecast(double lat, double lon) {
-        String url = String.format("%s?lat=%f&lon=%f&appid=%s&units=imperial&cnt=40", forecastUrl, lat, lon, apiKey);
-        // .get() = HTTP GET, .uri() = set the URL, .retrieve() = execute, .body() = parse response as JsonNode
-        return restClient.get().uri(url).retrieve().body(JsonNode.class);
-    }
-
-    // fetches the Air Quality Index by coordinates — returns raw JsonNode, parsed in WeatherQueryService
-    public JsonNode fetchAqi(double lat, double lon) {
-        String url = String.format("%s?lat=%f&lon=%f&appid=%s", aqiUrl, lat, lon, apiKey);
-        return restClient.get().uri(url).retrieve().body(JsonNode.class);
-    }
-
-    // fetches current weather by lat/lon — used by the scheduler to ingest data for all cities every 10 mins
+    // Current conditions by coordinates — used by the 10-minute ingestion scheduler
     public WeatherApiResponse fetchWeatherByCoords(double lat, double lon) {
-        String url = String.format("%s?lat=%f&lon=%f&appid=%s&units=imperial", apiUrl, lat, lon, apiKey);
-        return getWeatherApiResponse(url);
-    }
+        String url = String.format(
+            "%s?latitude=%f&longitude=%f" +
+            "&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,surface_pressure,weather_code" +
+            "&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=UTC",
+            FORECAST_URL, lat, lon
+        );
 
-    // fetches current weather by city name string — used by admin when adding a new city
-    // also resolves lat/lon automatically from the response so we don't need a separate lookup
-    public WeatherApiResponse fetchWeather(String city) {
-        String url = String.format("%s?q=%s&appid=%s&units=imperial", apiUrl, city, apiKey);
-        return getWeatherApiResponse(url);
-    }
+        JsonNode response = restClient.get().uri(url).retrieve().body(JsonNode.class);
+        JsonNode current  = response.get("current");
 
-    // private shared method — fetchWeatherByCoords and fetchWeather build different URLs
-    // but parse the response the same way, so parsing logic lives here to avoid duplication
-    private WeatherApiResponse getWeatherApiResponse(String url) {
-        // make the HTTP GET request and parse the entire response body as a raw JSON tree (JsonNode)
-        JsonNode response = restClient.get()
-                .uri(url)           // set URL to call
-                .retrieve()         // execute the HTTP request
-                .body(JsonNode.class); // parse response JSON into a navigable tree
+        String description = WMO.getOrDefault(current.get("weather_code").asInt(), "unknown");
 
-        /*
-            navigate the JSON tree using .get("key") — works like opening folders
-            single .get("name")          -> top level field:   { "name": "Boston" }
-            double .get("sys").get("country") -> nested object: { "sys": { "country": "US" } }
-            .get(0)                      ->array index:        "weather": [ { "description": "rain" } ]
-            then convert to Java type: .asString(), .asDouble(), .asInt()
-            finally, instantiate the WeatherApiResponse Java record with all extracted values
-         */
         return new WeatherApiResponse(
-                response.get("name").asString(),                              // city name — top level
-                response.get("sys").get("country").asString(),                // country — inside "sys" object
-                response.get("coord").get("lat").asDouble(),                  // latitude — inside "coord" object
-                response.get("coord").get("lon").asDouble(),                  // longitude — inside "coord" object
-                response.get("main").get("temp").asDouble(),                  // temperature — inside "main" object
-                response.get("main").get("feels_like").asDouble(),            // feels like — inside "main" object
-                response.get("main").get("humidity").asInt(),                 // humidity — whole number, asInt()
-                response.get("main").get("pressure").asInt(),                 // pressure — whole number, asInt()
-                response.get("wind").get("speed").asDouble(),                 // wind speed — inside "wind" object
-                response.get("weather").get(0).get("description").asString(), // description — "weather" is an array, get first element
-                LocalDateTime.now(ZoneOffset.UTC)                             // fetch timestamp — generated here, not from the API
+            "",
+            "US",
+            lat, lon,
+            current.get("temperature_2m").asDouble(),
+            current.get("apparent_temperature").asDouble(),
+            current.get("relative_humidity_2m").asInt(),
+            (int) current.get("surface_pressure").asDouble(),
+            current.get("wind_speed_10m").asDouble(),
+            description,
+            LocalDateTime.now(ZoneOffset.UTC)
         );
     }
 
+    // Resolve a city name to coordinates using Open-Meteo's free geocoding API
+    // Used when adding a new city via the admin panel
+    public WeatherApiResponse fetchWeather(String cityInput) {
+        String cityName = cityInput.split(",")[0].trim();
+        String encoded  = URLEncoder.encode(cityName, StandardCharsets.UTF_8);
 
+        String url = String.format("%s?name=%s&count=5&language=en&format=json", GEOCODING_URL, encoded);
+        JsonNode response = restClient.get().uri(url).retrieve().body(JsonNode.class);
+        JsonNode results  = response.get("results");
+
+        if (results == null || results.isEmpty()) {
+            throw new RuntimeException("City not found: " + cityName);
+        }
+
+        // Prefer US results
+        JsonNode best = results.get(0);
+        for (JsonNode r : results) {
+            JsonNode code = r.get("country_code");
+            if (code != null && "US".equals(code.asString())) { best = r; break; }
+        }
+
+        return new WeatherApiResponse(
+            best.get("name").asString(),
+            best.has("country_code") ? best.get("country_code").asString() : "US",
+            best.get("latitude").asDouble(),
+            best.get("longitude").asDouble(),
+            0, 0, 0, 0, 0, "unknown",
+            LocalDateTime.now(ZoneOffset.UTC)
+        );
+    }
+
+    // 5-day daily forecast — returns raw JsonNode in Open-Meteo daily format
+    // Parsed in WeatherQueryService.getForecast()
+    public JsonNode fetchForecast(double lat, double lon) {
+        String url = String.format(
+            "%s?latitude=%f&longitude=%f" +
+            "&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code" +
+            "&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=auto&forecast_days=5",
+            FORECAST_URL, lat, lon
+        );
+        return restClient.get().uri(url).retrieve().body(JsonNode.class);
+    }
+
+    // Air quality index — returns raw JsonNode in Open-Meteo AQI format
+    // Parsed in WeatherQueryService.getAqi()
+    public JsonNode fetchAqi(double lat, double lon) {
+        String url = String.format(
+            "%s?latitude=%f&longitude=%f&current=us_aqi",
+            AQI_URL, lat, lon
+        );
+        return restClient.get().uri(url).retrieve().body(JsonNode.class);
+    }
 }

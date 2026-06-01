@@ -59,7 +59,14 @@ public interface WeatherDataRepository extends JpaRepository<WeatherData, Long> 
     // @Transactional — wraps in a transaction: if anything fails, the whole delete rolls back to prevent partial deletes
     @Modifying
     @Transactional
-    void deleteByCityId(Long cityId);  // Spring generates: DELETE FROM weather_data WHERE city_id = ?
+    void deleteByCityId(Long cityId);
+
+    // Returns distinct dates that already have data for a city — used to skip days during historical import
+    @Query(value = "SELECT DISTINCT DATE(fetched_at) FROM weather_data WHERE city_id = :cityId AND fetched_at BETWEEN :start AND :end",
+           nativeQuery = true)
+    List<java.sql.Date> findDatesWithData(@Param("cityId") Long cityId,
+                                          @Param("start") LocalDateTime start,
+                                          @Param("end") LocalDateTime end);
 
     // native SQL JOIN query — JOINs weather_data and city tables to get city names alongside avg temps
     // DATE_SUB(NOW(), INTERVAL :days DAY) = only include records from the last N days

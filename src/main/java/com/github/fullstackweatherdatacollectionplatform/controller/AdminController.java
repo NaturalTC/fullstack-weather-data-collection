@@ -3,11 +3,16 @@ package com.github.fullstackweatherdatacollectionplatform.controller;
 import com.github.fullstackweatherdatacollectionplatform.dto.AdminStatsDTO;
 import com.github.fullstackweatherdatacollectionplatform.model.City;
 import com.github.fullstackweatherdatacollectionplatform.service.AdminService;
+import com.github.fullstackweatherdatacollectionplatform.service.CitySeederService;
+import com.github.fullstackweatherdatacollectionplatform.service.HistoricalImportService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.util.Map;
 
 @RestController          // marks this as a REST controller — methods return JSON directly
 @RequestMapping("/admin") // all endpoints prefixed with /admin — protected by Spring Security
@@ -15,7 +20,9 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Admin", description = "Protected admin endpoints — HTTP Basic Auth required")  // Swagger UI grouping
 public class AdminController {
 
-    private final AdminService adminService;  // injected by Spring via constructor
+    private final AdminService adminService;
+    private final CitySeederService citySeederService;
+    private final HistoricalImportService historicalImportService;
 
     // GET /admin/stats — returns total records, last fetch time, and per-city counts
     @GetMapping("/stats")
@@ -53,7 +60,33 @@ public class AdminController {
         return ResponseEntity.ok("ok");
     }
 
-    // record used as the request body shape for POST /admin/cities
-    // Spring automatically deserializes the incoming JSON { "name": "...", "state": "...", "country": "..." } into this
+    @PostMapping("/import-cities")
+    @Operation(summary = "Bulk seed 50 major US cities", description = "Idempotent — skips cities already in the database")
+    public ResponseEntity<Map<String, Integer>> importCities() {
+        CitySeederService.SeedResult result = citySeederService.bulkSeed();
+        return ResponseEntity.ok(Map.of("added", result.added(), "skipped", result.skipped()));
+    }
+
+    @PostMapping("/import-historical")
+    @Operation(summary = "Import historical hourly data from Open-Meteo (free, no key needed)")
+    public ResponseEntity<?> importHistorical(@RequestBody HistoricalImportRequest req) {
+        try {
+            LocalDate from = req.from() != null ? LocalDate.parse(req.from()) : LocalDate.now().minusMonths(12);
+            LocalDate to   = req.to()   != null ? LocalDate.parse(req.to())   : LocalDate.now().minusDays(1);
+            HistoricalImportService.ImportResult result =
+                    historicalImportService.importForCity(req.city(), from, to);
+            return ResponseEntity.ok(Map.of(
+                "city",     result.city(),
+                "imported", result.imported(),
+                "skipped",  result.skipped()
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", "Import failed: " + e.getMessage()));
+        }
+    }
+
     record CityRequest(String name, String state, String country) {}
+    record HistoricalImportRequest(String city, String from, String to) {}
 }

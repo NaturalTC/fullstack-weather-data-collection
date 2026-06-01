@@ -2,15 +2,17 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   fetchCities, fetchLatestWeather, fetchWeatherHistory,
-  fetchDailySummary, fetchForecast, fetchAqi, fetchAlerts,
+  fetchDailySummary, fetchForecast, fetchAqi, fetchAlerts, fetchInsight,
 } from './api/weatherApi';
-import type { CityDTO, WeatherDataDTO, WeatherSummaryDTO, ForecastDayDTO, AqiDTO, WeatherAlertDTO } from './types';
+import { LogoMark } from './components/LogoMark';
+import type { CityDTO, WeatherDataDTO, WeatherSummaryDTO, ForecastDayDTO, AqiDTO, WeatherAlertDTO, WeatherInsightDTO } from './types';
 import CityChip from './components/CurrentWeatherCard';
 import WeatherChart from './components/WeatherChart';
 import SummaryChart from './components/SummaryChart';
 import ForecastSection from './components/ForecastSection';
 import WeatherMap from './components/WeatherMap';
 import AlertsPanel from './components/AlertsPanel';
+import InsightPanel from './components/InsightPanel';
 import { getWeatherIcon } from './utils/weatherIcon';
 import './App.css';
 
@@ -38,28 +40,30 @@ export default function App() {
   const [aqi, setAqi]                     = useState<AqiDTO | null>(null);
   const [activeTab, setActiveTab]         = useState<Tab>('history');
   const [loading, setLoading]             = useState(true);
-  const [alerts, setAlerts]               = useState<WeatherAlertDTO[]>([]);
+  const [alerts,  setAlerts]              = useState<WeatherAlertDTO[]>([]);
+  const [insight, setInsight]             = useState<WeatherInsightDTO | null>(null);
+  const [unit, setUnit]                   = useState<'imperial' | 'metric'>('imperial');
 
   useEffect(() => {
-    // alerts are fetched independently so a failure doesn't block the main data from loading
     fetchAlerts().then(setAlerts).catch(() => setAlerts([]));
 
-    Promise.all([fetchCities(), fetchLatestWeather()])
+    Promise.all([fetchCities(), fetchLatestWeather(unit)])
       .then(([c, latest]) => {
         setCities(c);
         setLatestWeather(latest);
-        if (latest.length > 0) setSelectedCity(latest[0].cityName);
+        setSelectedCity(prev => prev || (latest.length > 0 ? latest[0].cityName : ''));
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [unit]);
 
   useEffect(() => {
     if (!selectedCity) return;
-    fetchWeatherHistory(selectedCity).then(setHistory);
-    fetchDailySummary(selectedCity).then(setSummary);
-    fetchForecast(selectedCity).then(setForecast);
+    fetchWeatherHistory(selectedCity, unit).then(setHistory);
+    fetchDailySummary(selectedCity, unit).then(setSummary);
+    fetchForecast(selectedCity, unit).then(setForecast);
     fetchAqi(selectedCity).then(setAqi).catch(() => setAqi(null));
-  }, [selectedCity]);
+    fetchInsight(selectedCity).then(setInsight).catch(() => setInsight(null));
+  }, [selectedCity, unit]);
 
   if (loading) {
     return (
@@ -76,10 +80,28 @@ export default function App() {
   return (
     <div className="app">
 
+      {/* ── Nav ── */}
+      <nav className="app-nav">
+        <Link to="/" className="app-nav-logo">
+          <LogoMark size={28} />
+          <span className="app-nav-logo-name">NovaCast</span>
+        </Link>
+        <div className="app-nav-links">
+          <Link to="/developer">My Keys</Link>
+          <Link to="/metrics">Status</Link>
+        </div>
+        <button
+          className="app-unit-toggle"
+          onClick={() => setUnit(u => u === 'imperial' ? 'metric' : 'imperial')}
+        >
+          {unit === 'imperial' ? '°F' : '°C'}
+        </button>
+      </nav>
+
       {/* ── Header ── */}
       <header className="app-header">
-        <div className="header-eyebrow">NEW ENGLAND</div>
-        <h1 className="header-title">Weather</h1>
+        <div className="header-eyebrow">NOVACAST · NEW ENGLAND</div>
+        <h1 className="header-title">Weather Dashboard</h1>
       </header>
 
       {/* ── Hero ── */}
@@ -91,7 +113,7 @@ export default function App() {
               <p className="hero-city">
                 {hero.cityName}{heroCity ? `, ${heroCity.state}` : ''}
               </p>
-              <p className="hero-temp">{Math.round(hero.temperature)}°</p>
+              <p className="hero-temp">{Math.round(hero.temperature)}{unit === 'imperial' ? '°F' : '°C'}</p>
               <p className="hero-desc">{hero.description}</p>
               {aqi && (
                 <div className="aqi-badge" style={{ '--aqi-color': AQI_COLORS[aqi.index] } as React.CSSProperties}>
@@ -104,7 +126,7 @@ export default function App() {
           </div>
           <div className="hero-details">
             {[
-              { label: 'Feels like', value: `${Math.round(hero.feelsLike)}°F` },
+              { label: 'Feels like', value: `${Math.round(hero.feelsLike)}${unit === 'imperial' ? '°F' : '°C'}` },
               { label: 'Humidity',   value: `${hero.humidity}%` },
               { label: 'Wind',       value: `${hero.windSpeed} mph` },
               { label: 'Pressure',   value: `${hero.pressure} hPa` },
@@ -147,22 +169,31 @@ export default function App() {
           </div>
         </div>
 
-        {activeTab === 'history' && (
-          history.length > 0
-            ? <WeatherChart data={history} />
-            : <p className="no-data">No history yet for {selectedCity}</p>
-        )}
-        {activeTab === 'forecast' && (
-          forecast.length > 0
-            ? <ForecastSection data={forecast} />
-            : <p className="no-data">Loading forecast…</p>
-        )}
-        {activeTab === 'summary' && (
-          summary.length > 0
-            ? <SummaryChart data={summary} />
-            : <p className="no-data">No summary yet for {selectedCity}</p>
-        )}
+        <div key={activeTab} className="tab-content">
+          {activeTab === 'history' && (
+            history.length > 0
+              ? <WeatherChart data={history} />
+              : <p className="no-data">No history yet for {selectedCity}</p>
+          )}
+          {activeTab === 'forecast' && (
+            forecast.length > 0
+              ? <ForecastSection data={forecast} />
+              : <p className="no-data">Loading forecast…</p>
+          )}
+          {activeTab === 'summary' && (
+            summary.length > 0
+              ? <SummaryChart data={summary} />
+              : <p className="no-data">No summary yet for {selectedCity}</p>
+          )}
+        </div>
       </div>
+
+      {/* ── AI Insights ── */}
+      {insight && (
+        <div className="panel" style={{ marginTop: '1rem' }}>
+          <InsightPanel insight={insight} />
+        </div>
+      )}
 
       {/* ── Alerts ── */}
       <div className="panel" style={{ marginTop: '1rem' }}>
@@ -176,6 +207,8 @@ export default function App() {
       </div>
 
       <footer className="app-footer">
+        <Link to="/">home</Link>
+        <span style={{ color: '#94a3b8', margin: '0 0.5rem' }}>·</span>
         <Link to="/metrics">metrics</Link>
         <span style={{ color: '#94a3b8', margin: '0 0.5rem' }}>·</span>
         <Link to="/admin">admin</Link>

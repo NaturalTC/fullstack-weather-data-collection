@@ -1,7 +1,7 @@
 package com.github.fullstackweatherdatacollectionplatform.service;
 
 import com.github.fullstackweatherdatacollectionplatform.client.WeatherApiClient;
-import com.github.fullstackweatherdatacollectionplatform.client.WeatherApiResponse;
+import com.github.fullstackweatherdatacollectionplatform.dto.WeatherApiResponse;
 import com.github.fullstackweatherdatacollectionplatform.dto.AdminStatsDTO;
 import com.github.fullstackweatherdatacollectionplatform.model.City;
 import com.github.fullstackweatherdatacollectionplatform.model.WeatherData;

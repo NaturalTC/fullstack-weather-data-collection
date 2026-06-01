@@ -44,6 +44,18 @@ export interface HeatmapEntryDTO {
   avgTemp: number;
 }
 
+export interface WeatherInsightDTO {
+  city: string;
+  summary: string;
+  trend: 'warming' | 'cooling' | 'stable';
+  anomalyDescription: string | null;
+  severityScore: number;
+  anomalyFlag: boolean;
+  currentTemp: number;
+  weeklyAvgTemp: number;
+  tempDeviation: number;
+}
+
 export interface WeatherAlertDTO {
   id: number | null;
   cityName: string;

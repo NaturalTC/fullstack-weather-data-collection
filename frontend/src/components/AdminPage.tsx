@@ -36,6 +36,17 @@ export default function AdminPage() {
   const [cityMsg, setCityMsg] = useState('');
   const [cacheStats, setCacheStats] = useState<CacheStat[] | null>(null);
   const [cacheLoading, setCacheLoading] = useState(false);
+  const [seedMsg, setSeedMsg] = useState('');
+  const [seedLoading, setSeedLoading] = useState(false);
+  const [importCity, setImportCity] = useState('');
+  const [importFrom, setImportFrom] = useState(() => {
+    const d = new Date(); d.setFullYear(d.getFullYear() - 1); return d.toISOString().slice(0, 10);
+  });
+  const [importTo, setImportTo] = useState(() => {
+    const d = new Date(); d.setDate(d.getDate() - 1); return d.toISOString().slice(0, 10);
+  });
+  const [importMsg, setImportMsg] = useState('');
+  const [importLoading, setImportLoading] = useState(false);
 
 
   function makeAuth(u: string, p: string) {
@@ -125,6 +136,36 @@ export default function AdminPage() {
     } finally {
       setCacheLoading(false);
     }
+  }
+
+  async function handleSeedCities() {
+    setSeedLoading(true); setSeedMsg('');
+    const res = await fetch(`${API_BASE}/admin/import-cities`, {
+      method: 'POST', headers: { Authorization: authHeader },
+    });
+    const data = await res.json().catch(() => ({}));
+    setSeedMsg(res.ok
+      ? `Done — added ${data.added}, skipped ${data.skipped} already-existing cities.`
+      : `Failed: ${data.error ?? res.status}`);
+    if (res.ok) refreshStats();
+    setSeedLoading(false);
+  }
+
+  async function handleImportHistorical(e: React.FormEvent) {
+    e.preventDefault();
+    if (!importCity.trim()) { setImportMsg('Enter a city name.'); return; }
+    setImportLoading(true); setImportMsg('Importing — this may take 10–30 seconds…');
+    const res = await fetch(`${API_BASE}/admin/import-historical`, {
+      method: 'POST',
+      headers: { Authorization: authHeader, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ city: importCity.trim(), from: importFrom, to: importTo }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setImportMsg(res.ok
+      ? `Imported ${data.imported.toLocaleString()} records for ${data.city} (${data.skipped.toLocaleString()} days skipped — already had data).`
+      : `Failed: ${data.error ?? res.status}`);
+    if (res.ok) refreshStats();
+    setImportLoading(false);
   }
 
   async function handleRemoveCity(name: string) {
@@ -282,6 +323,53 @@ export default function AdminPage() {
             <button style={styles.btn} type="submit">Add</button>
           </form>
           {cityMsg && <p style={styles.msg}>{cityMsg}</p>}
+        </section>
+
+        {/* Bulk seed cities */}
+        <section style={styles.section}>
+          <h3 style={styles.sectionTitle}>Bulk Add US Cities</h3>
+          <p style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.75rem' }}>
+            Seeds 51 major US cities with known coordinates. Skips any already in the database.
+          </p>
+          <button style={styles.btn} onClick={handleSeedCities} disabled={seedLoading}>
+            {seedLoading ? 'Seeding…' : 'Seed 51 US Cities'}
+          </button>
+          {seedMsg && <p style={styles.msg}>{seedMsg}</p>}
+        </section>
+
+        {/* Historical import */}
+        <section style={styles.section}>
+          <h3 style={styles.sectionTitle}>Import Historical Data</h3>
+          <p style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.75rem' }}>
+            Pulls hourly data from Open-Meteo's free archive (no API key needed, goes back to 1940).
+            Skips days that already have records.
+          </p>
+          <form onSubmit={handleImportHistorical} style={{ ...styles.form, gap: '0.5rem' }}>
+            <input
+              style={styles.input}
+              placeholder="City name (must exist in DB)"
+              value={importCity}
+              onChange={e => setImportCity(e.target.value)}
+            />
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '0.72rem', color: '#94a3b8' }}>From</label>
+                <input style={styles.input} type="date" value={importFrom} onChange={e => setImportFrom(e.target.value)} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                <label style={{ fontSize: '0.72rem', color: '#94a3b8' }}>To</label>
+                <input style={styles.input} type="date" value={importTo} onChange={e => setImportTo(e.target.value)} />
+              </div>
+            </div>
+            <button style={styles.btn} type="submit" disabled={importLoading}>
+              {importLoading ? 'Importing…' : 'Import Historical Data'}
+            </button>
+          </form>
+          {importMsg && (
+            <p style={{ ...styles.msg, color: importMsg.startsWith('Failed') ? '#f87171' : '#86efac' }}>
+              {importMsg}
+            </p>
+          )}
         </section>
       </div>
     </div>

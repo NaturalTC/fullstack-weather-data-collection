@@ -1,4 +1,4 @@
-package com.github.fullstackweatherdatacollectionplatform.client;
+package com.github.fullstackweatherdatacollectionplatform.dto;
 
 import java.time.LocalDateTime;
 

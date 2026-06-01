@@ -33,32 +33,39 @@ public class WeatherController {
     // GET /api/weather?city=Boston — returns full weather history, optionally filtered by city
     // @RequestParam(required = false) — city param is optional, returns all cities if omitted
     @GetMapping("/weather")
-    @Operation(summary = "Get weather history", description = "Returns all stored records, optionally filtered by city name")
-    public List<WeatherDataDTO> getAllWeather(@RequestParam(required = false) String city) {
-        return weatherQueryService.getAllWeather(city);
+    @Operation(summary = "Get weather history", description = "Returns all stored records, optionally filtered by city name. Add ?unit=metric for Celsius.")
+    public List<WeatherDataDTO> getAllWeather(
+            @RequestParam(required = false) String city,
+            @RequestParam(defaultValue = "imperial") String unit) {
+        var data = weatherQueryService.getAllWeather(city);
+        return "metric".equalsIgnoreCase(unit) ? data.stream().map(WeatherDataDTO::toMetric).toList() : data;
     }
 
-    // GET /api/weather/latest?city=Boston — returns only the most recent record per city
     @GetMapping("/weather/latest")
-    @Operation(summary = "Get latest weather per city", description = "Returns the most recent record for each city, or for a specific city if provided")
-    public List<WeatherDataDTO> getLatestWeather(@RequestParam(required = false) String city) {
-        return weatherQueryService.getLatestWeather(city);
+    @Operation(summary = "Get latest weather per city", description = "Returns the most recent record for each city. Add ?unit=metric for Celsius.")
+    public List<WeatherDataDTO> getLatestWeather(
+            @RequestParam(required = false) String city,
+            @RequestParam(defaultValue = "imperial") String unit) {
+        var data = weatherQueryService.getLatestWeather(city);
+        return "metric".equalsIgnoreCase(unit) ? data.stream().map(WeatherDataDTO::toMetric).toList() : data;
     }
 
-    // GET /api/weather/summary?city=Boston — returns daily min/max/avg temps for a city
-    // city is required here — a summary without a city would be too broad
     @GetMapping("/weather/summary")
-    @Operation(summary = "Get daily summary", description = "Returns daily min/max/avg temperature for a city")
-    public List<WeatherSummaryDTO> getDailySummary(@RequestParam String city) {
-        return weatherQueryService.getDailySummary(city);
+    @Operation(summary = "Get daily summary", description = "Returns daily min/max/avg temperature for a city. Add ?unit=metric for Celsius.")
+    public List<WeatherSummaryDTO> getDailySummary(
+            @RequestParam String city,
+            @RequestParam(defaultValue = "imperial") String unit) {
+        var data = weatherQueryService.getDailySummary(city);
+        return "metric".equalsIgnoreCase(unit) ? data.stream().map(WeatherSummaryDTO::toMetric).toList() : data;
     }
 
-    // GET /api/forecast?city=Boston — returns a live 5-day forecast directly from OpenWeatherMap
-    // not stored in the database — fetched fresh on every request
     @GetMapping("/forecast")
-    @Operation(summary = "Get 5-day forecast", description = "Live from OpenWeatherMap — not stored in the database")
-    public List<ForecastDayDTO> getForecast(@RequestParam String city) {
-        return weatherQueryService.getForecast(city);
+    @Operation(summary = "Get 5-day forecast", description = "Live from OpenWeatherMap. Add ?unit=metric for Celsius.")
+    public List<ForecastDayDTO> getForecast(
+            @RequestParam String city,
+            @RequestParam(defaultValue = "imperial") String unit) {
+        var data = weatherQueryService.getForecast(city);
+        return "metric".equalsIgnoreCase(unit) ? data.stream().map(ForecastDayDTO::toMetric).toList() : data;
     }
 
     // GET /api/aqi?city=Boston — returns live Air Quality Index directly from OpenWeatherMap

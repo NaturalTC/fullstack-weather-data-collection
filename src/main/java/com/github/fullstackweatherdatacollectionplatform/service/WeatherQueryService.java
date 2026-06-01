@@ -13,9 +13,24 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.StreamSupport;
 
-@Service          // marks this as a service layer bean — Spring manages it and it can be injected into controllers
-@AllArgsConstructor // Lombok — generates a constructor for all final fields (constructor injection)
+
+
+@Service
+@AllArgsConstructor
 public class WeatherQueryService {
+
+    private static final Map<Integer, String> WMO_LABELS = Map.ofEntries(
+        Map.entry(0,  "clear sky"),      Map.entry(1,  "mainly clear"),
+        Map.entry(2,  "partly cloudy"),  Map.entry(3,  "overcast"),
+        Map.entry(45, "fog"),            Map.entry(48, "icy fog"),
+        Map.entry(51, "light drizzle"),  Map.entry(53, "drizzle"),
+        Map.entry(55, "heavy drizzle"),  Map.entry(61, "light rain"),
+        Map.entry(63, "moderate rain"),  Map.entry(65, "heavy rain"),
+        Map.entry(71, "light snow"),     Map.entry(73, "snow"),
+        Map.entry(75, "heavy snow"),     Map.entry(80, "light showers"),
+        Map.entry(81, "showers"),        Map.entry(82, "heavy showers"),
+        Map.entry(95, "thunderstorm"),   Map.entry(96, "thunderstorm with hail")
+    );
 
     // all injected by Spring via the Lombok-generated constructor
     private final WeatherDataRepository weatherDataRepository;
@@ -94,46 +109,36 @@ public class WeatherQueryService {
                 .toList();
     }
 
-    // returns a 5-day forecast — fetched live from OpenWeatherMap, not stored in the database
-    // cached for 10 minutes (Caffeine TTL) so we don't call the external API on every request
+    // returns a 5-day forecast — Open-Meteo daily format (max/min/precip/code per day)
     @Cacheable(value = "forecast", key = "#cityName")
     public List<ForecastDayDTO> getForecast(String cityName)
     {
         City city = cityRepository.findByName(cityName).orElse(null);
         if (city == null) return List.of();
 
-        // fetch live forecast JSON using the city's stored coordinates
         JsonNode response = weatherApiClient.fetchForecast(city.getLatitude(), city.getLongitude());
-        JsonNode list = response.get("list");  // "list" is the array of 3-hour forecast slots in the API response
+        JsonNode daily    = response.get("daily");
+        JsonNode times    = daily.get("time");
+        JsonNode highs    = daily.get("temperature_2m_max");
+        JsonNode lows     = daily.get("temperature_2m_min");
+        JsonNode pops     = daily.get("precipitation_probability_max");
+        JsonNode codes    = daily.get("weather_code");
 
-        // the API returns 40 x 3-hour slots — we need to group them by day to build 5 daily summaries
-        // LinkedHashMap preserves insertion order so days stay in chronological order
-        Map<String, List<JsonNode>> byDay = new LinkedHashMap<>();
-        for (JsonNode item : list) {
-            // "dt_txt" looks like "2026-03-10 09:00:00" — substring(0, 10) extracts just the date "2026-03-10"
-            String date = item.get("dt_txt").asString().substring(0, 10);
-            // computeIfAbsent — if this date key doesn't exist yet, create a new ArrayList for it, then add the slot
-            byDay.computeIfAbsent(date, k -> new ArrayList<>()).add(item);
+        List<ForecastDayDTO> result = new ArrayList<>();
+        for (int i = 0; i < times.size(); i++) {
+            String desc = WMO_LABELS.getOrDefault(codes.get(i).asInt(), "unknown");
+            result.add(new ForecastDayDTO(
+                times.get(i).asString(),
+                highs.get(i).asDouble(),
+                lows.get(i).asDouble(),
+                pops.get(i).isNull() ? 0 : pops.get(i).asInt(),
+                desc
+            ));
         }
-
-        // now transform each day's list of 3-hour slots into a single ForecastDayDTO
-        return byDay.entrySet().stream()
-                .map(entry -> {
-                    List<JsonNode> slots = entry.getValue();  // all 3-hour slots for this day
-                    // find the highest temp_max across all slots for the day
-                    double high = slots.stream().mapToDouble(s -> s.get("main").get("temp_max").asDouble()).max().orElse(0);
-                    // find the lowest temp_min across all slots for the day
-                    double low  = slots.stream().mapToDouble(s -> s.get("main").get("temp_min").asDouble()).min().orElse(0);
-                    // "pop" = probability of precipitation (0.0 to 1.0) — average across all slots then multiply by 100 for %
-                    double avgPop = slots.stream().mapToDouble(s -> s.get("pop").asDouble()).average().orElse(0);
-                    // use the middle slot of the day as the representative description (avoids edge-of-day weather)
-                    String desc = slots.get(slots.size() / 2).get("weather").get(0).get("description").asString();
-                    return new ForecastDayDTO(entry.getKey(), high, low, (int) (avgPop * 100), desc);
-                })
-                .toList();
+        return result;
     }
 
-    // returns the Air Quality Index for a city — fetched live from OpenWeatherMap, not stored in the database
+    // returns the Air Quality Index — Open-Meteo air quality API, US AQI scale mapped to 1-5
     @Cacheable(value = "aqi", key = "#cityName")
     public AqiDTO getAqi(String cityName)
     {
@@ -141,10 +146,12 @@ public class WeatherQueryService {
         if (city == null) return null;
 
         JsonNode response = weatherApiClient.fetchAqi(city.getLatitude(), city.getLongitude());
-        // the AQI value is deeply nested: { "list": [ { "main": { "aqi": 2 } } ] }
-        int index = response.get("list").get(0).get("main").get("aqi").asInt();
+        JsonNode currentNode = response.get("current");
+        if (currentNode == null || currentNode.get("us_aqi") == null) return null;
 
-        // OpenWeatherMap returns AQI as 1-5 — map to human-readable labels
+        int usAqi = currentNode.get("us_aqi").asInt();
+        int index = usAqi <= 50 ? 1 : usAqi <= 100 ? 2 : usAqi <= 150 ? 3 : usAqi <= 200 ? 4 : 5;
+
         String label = switch (index) {
             case 1 -> "Good";
             case 2 -> "Fair";
