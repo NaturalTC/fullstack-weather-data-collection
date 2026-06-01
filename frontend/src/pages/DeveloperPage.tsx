@@ -98,12 +98,6 @@ export default function DeveloperPage() {
     }
   }
 
-  function handleCopy(key: ApiKeyDTO) {
-    navigator.clipboard.writeText(key.keyValue);
-    setCopied(key.id);
-    setTimeout(() => setCopied(null), 2000);
-  }
-
   function handleNewKeyCopy() {
     if (!newKey) return;
     navigator.clipboard.writeText(newKey.keyValue);
