@@ -91,7 +91,7 @@ export default function LandingPage() {
         <div className="lp-nav-inner">
           <div className="lp-logo">
             <LogoMark size={36} />
-            <span className="lp-logo-name">NovaCast</span>
+            <span className="lp-logo-name">WeatherConnect</span>
           </div>
           <div className="lp-nav-links">
             <a href="#features">Platform</a>
@@ -240,7 +240,7 @@ export default function LandingPage() {
         <div className="lp-footer-inner">
           <div className="lp-footer-logo">
             <LogoMark size={36} />
-            <span className="lp-logo-name">NovaCast</span>
+            <span className="lp-logo-name">WeatherConnect</span>
           </div>
           <div className="lp-footer-links">
             <Link to="/dashboard">Live Dashboard</Link>
@@ -248,7 +248,7 @@ export default function LandingPage() {
             <a href="#api">API Docs</a>
             <a href="#pricing">Pricing</a>
           </div>
-          <p className="lp-footer-copy">© 2026 NovaCast. Weather data for developers.</p>
+          <p className="lp-footer-copy">© 2026 WeatherConnect. Weather data for developers.</p>
         </div>
       </footer>
 

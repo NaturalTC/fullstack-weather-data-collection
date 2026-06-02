@@ -40,12 +40,12 @@ export default function SignInPage() {
     <div className="auth-page">
       <Link to="/" className="auth-logo">
         <LogoMark size={40} />
-        <span className="auth-logo-name">NovaCast</span>
+        <span className="auth-logo-name">WeatherConnect</span>
       </Link>
 
       <div className="auth-card">
         <h1 className="auth-title">Welcome back</h1>
-        <p className="auth-subtitle">Sign in to your NovaCast developer account</p>
+        <p className="auth-subtitle">Sign in to your WeatherConnect developer account</p>
 
         {success && (
           <div className="auth-error" style={{ background: 'rgba(34,197,94,0.1)', borderColor: 'rgba(34,197,94,0.3)', color: '#86efac', marginBottom: '1rem' }}>

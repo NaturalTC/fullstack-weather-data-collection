@@ -84,7 +84,7 @@ export default function App() {
       <nav className="app-nav">
         <Link to="/" className="app-nav-logo">
           <LogoMark size={28} />
-          <span className="app-nav-logo-name">NovaCast</span>
+          <span className="app-nav-logo-name">WeatherConnect</span>
         </Link>
         <div className="app-nav-links">
           <Link to="/developer">My Keys</Link>

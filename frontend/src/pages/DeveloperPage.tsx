@@ -119,7 +119,7 @@ export default function DeveloperPage() {
       <nav className="dev-nav">
         <Link to="/" className="dev-logo">
           <LogoMark size={34} />
-          <span className="dev-logo-name">NovaCast</span>
+          <span className="dev-logo-name">WeatherConnect</span>
         </Link>
         <div className="dev-nav-links">
           <Link to="/dashboard">Live Data</Link>
@@ -159,7 +159,7 @@ export default function DeveloperPage() {
           {/* Welcome */}
           <div className="dev-welcome">
             <h1 className="dev-title">Developer Dashboard</h1>
-            <p className="dev-subtitle">Manage your API keys and explore the NovaCast API.</p>
+            <p className="dev-subtitle">Manage your API keys and explore the WeatherConnect API.</p>
           </div>
 
           {/* ── API Keys section ── */}

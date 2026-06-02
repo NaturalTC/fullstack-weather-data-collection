@@ -111,7 +111,7 @@ export default function ProfilePage() {
       <nav className="dev-nav">
         <Link to="/" className="dev-logo">
           <LogoMark size={34} />
-          <span className="dev-logo-name">NovaCast</span>
+          <span className="dev-logo-name">WeatherConnect</span>
         </Link>
         <div className="dev-nav-links">
           <Link to="/developer">Dashboard</Link>

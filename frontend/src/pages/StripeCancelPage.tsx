@@ -7,7 +7,7 @@ export default function StripeCancelPage() {
     <div className="auth-page">
       <Link to="/" className="auth-logo">
         <LogoMark size={40} />
-        <span className="auth-logo-name">NovaCast</span>
+        <span className="auth-logo-name">WeatherConnect</span>
       </Link>
       <div className="auth-card" style={{ textAlign: 'center' }}>
         <h1 className="auth-title">Checkout cancelled</h1>

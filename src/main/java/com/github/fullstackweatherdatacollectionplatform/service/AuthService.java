@@ -78,13 +78,13 @@ public class AuthService {
                 SimpleMailMessage msg = new SimpleMailMessage();
                 msg.setFrom(mailFrom);
                 msg.setTo(user.getEmail());
-                msg.setSubject("NovaCast — Reset your password");
+                msg.setSubject("WeatherConnect — Reset your password");
                 msg.setText(
                     "Hi " + user.getName() + ",\n\n" +
                     "Click the link below to reset your password. It expires in 1 hour.\n\n" +
                     frontendUrl + "/reset-password?token=" + token + "\n\n" +
                     "If you didn't request this, ignore this email.\n\n" +
-                    "— The NovaCast Team"
+                    "— The WeatherConnect Team"
                 );
                 mailSender.send(msg);
             }

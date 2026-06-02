@@ -35,7 +35,7 @@ export default function ResetPasswordPage() {
     <div className="auth-page">
       <Link to="/" className="auth-logo">
         <LogoMark size={40} />
-        <span className="auth-logo-name">NovaCast</span>
+        <span className="auth-logo-name">WeatherConnect</span>
       </Link>
 
       <div className="auth-card">

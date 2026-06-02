@@ -30,12 +30,12 @@ export default function SignUpPage() {
     <div className="auth-page">
       <Link to="/" className="auth-logo">
         <LogoMark size={40} />
-        <span className="auth-logo-name">NovaCast</span>
+        <span className="auth-logo-name">WeatherConnect</span>
       </Link>
 
       <div className="auth-card">
         <h1 className="auth-title">Create your account</h1>
-        <p className="auth-subtitle">Start building with the NovaCast weather API</p>
+        <p className="auth-subtitle">Start building with the WeatherConnect weather API</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <div className="auth-field">
