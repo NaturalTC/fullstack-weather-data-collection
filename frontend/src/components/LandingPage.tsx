@@ -8,7 +8,7 @@ const FEATURES = [
   { icon: '🤖', title: 'AI Anomaly Detection',   desc: 'GPT-4o mini flags statistically unusual conditions and generates natural language severity scores automatically.' },
   { icon: '🔔', title: 'Email Alerts',           desc: 'Set metric thresholds on any city. We send an email the moment conditions are triggered — temperature, wind, humidity, pressure.' },
   { icon: '📅', title: '5-Day Forecasts',        desc: 'Daily high/low temperature, precipitation probability, and conditions. Live from OpenWeatherMap, cached for speed.' },
-  { icon: '🗺️', title: 'Multi-City Coverage',    desc: '9 New England cities with full lat/lon coordinates on every response. More cities added continuously.' },
+  { icon: '🗺️', title: 'Multi-City Coverage',    desc: '74 US cities with full lat/lon coordinates on every response. More cities added continuously.' },
   { icon: '🔑', title: 'API Key Auth',           desc: 'Generate and manage API keys from your developer dashboard. Authenticate every request with a single header.' },
 ];
 
@@ -138,7 +138,7 @@ export default function LandingPage() {
 
           <div className="lp-hero-stats">
             {[
-              { label: 'Cities monitored',  value: '9',    unit: '' },
+              { label: 'Cities monitored',  value: '74',   unit: '' },
               { label: 'Data refresh rate', value: '10',   unit: 'min' },
               { label: 'Uptime',            value: '99.9', unit: '%' },
               { label: 'Data points',       value: '2.1M', unit: '+' },
