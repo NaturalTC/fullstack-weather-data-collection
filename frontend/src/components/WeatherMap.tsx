@@ -34,9 +34,9 @@ export default function WeatherMap({ cities, latestWeather }: Props) {
   return (
     <div style={{ position: 'relative' }}>
       <MapContainer
-        center={[43.8, -71.5]}
-        zoom={7}
-        style={{ height: '440px', width: '100%', borderRadius: '14px' }}
+        center={[38.5, -96]}
+        zoom={4}
+        style={{ height: '520px', width: '100%', borderRadius: '14px' }}
         scrollWheelZoom={false}
       >
         <TileLayer
@@ -56,7 +56,7 @@ export default function WeatherMap({ cities, latestWeather }: Props) {
             <CircleMarker
               key={city.name}
               center={[city.latitude, city.longitude]}
-              radius={8}
+              radius={9}
               pathOptions={{ color, fillColor: color, fillOpacity: 0.9, weight: 1.5 }}
             >
               <Popup>

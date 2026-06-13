@@ -51,7 +51,7 @@ public class CitySeederService {
         new Object[]{"Oklahoma City",   "OK", 35.4676,  -97.5164},
         new Object[]{"Las Vegas",       "NV", 36.1699, -115.1398},
         new Object[]{"Memphis",         "TN", 35.1495,  -90.0490},
-        new Object[]{"Portland",        "OR", 45.5051, -122.6750},
+        new Object[]{"Eugene",           "OR", 44.0521, -123.0868},
         new Object[]{"Baltimore",       "MD", 39.2904,  -76.6122},
         new Object[]{"Milwaukee",       "WI", 43.0389,  -87.9065},
         new Object[]{"Albuquerque",     "NM", 35.0844, -106.6504},
@@ -79,7 +79,20 @@ public class CitySeederService {
         new Object[]{"Buffalo",         "NY", 42.8864,  -78.8784},
         new Object[]{"Albany",          "NY", 42.6526,  -73.7562},
         new Object[]{"Honolulu",        "HI", 21.3069, -157.8583},
-        new Object[]{"Anchorage",       "AK", 61.2181, -149.9003}
+        new Object[]{"Anchorage",       "AK", 61.2181, -149.9003},
+        // Filling regional gaps
+        new Object[]{"El Paso",         "TX", 31.7619, -106.4850},
+        new Object[]{"Tulsa",           "OK", 36.1540,  -95.9928},
+        new Object[]{"Des Moines",      "IA", 41.5868,  -93.6250},
+        new Object[]{"Spokane",         "WA", 47.6587, -117.4260},
+        new Object[]{"Birmingham",      "AL", 33.5207,  -86.8025},
+        new Object[]{"Virginia Beach",  "VA", 36.8529,  -75.9780},
+        new Object[]{"Fargo",           "ND", 46.8772,  -96.7898},
+        new Object[]{"Little Rock",     "AR", 34.7465,  -92.2896},
+        new Object[]{"Billings",        "MT", 45.7833, -108.5007},
+        new Object[]{"Fairbanks",       "AK", 64.8378, -147.7164},
+        new Object[]{"Cheyenne",        "WY", 41.1400, -104.8202},
+        new Object[]{"Sioux Falls",     "SD", 43.5446,  -96.7311}
     );
 
     @PostConstruct

@@ -13,7 +13,11 @@ export async function register(name: string, email: string, password: string): P
     body: JSON.stringify({ name, email, password }),
   });
   const text = await res.text();
-  if (!res.ok) throw new Error(text || 'Registration failed');
+  if (!res.ok) {
+    let message = 'Registration failed';
+    try { message = JSON.parse(text)?.message ?? JSON.parse(text)?.error ?? message; } catch {}
+    throw new Error(message);
+  }
   return text;
 }
 
@@ -25,7 +29,9 @@ export async function login(email: string, password: string): Promise<AuthRespon
   });
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(text || 'Login failed');
+    let message = 'Invalid email or password';
+    try { message = JSON.parse(text)?.message ?? JSON.parse(text)?.error ?? message; } catch {}
+    throw new Error(message);
   }
   return res.json();
 }

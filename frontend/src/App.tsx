@@ -100,7 +100,7 @@ export default function App() {
 
       {/* ── Header ── */}
       <header className="app-header">
-        <div className="header-eyebrow">NOVACAST · NEW ENGLAND</div>
+        <div className="header-eyebrow">WEATHERCONNECT · UNITED STATES</div>
         <h1 className="header-title">Weather Dashboard</h1>
       </header>
 
